@@ -1,10 +1,14 @@
 "use client";
 import { useState } from "react";
 import { AppRuntime, type ScreenApi } from "@/components/simulator/AppRuntime";
+import { AppScreen } from "@/components/apps/_ui/AppScreen";
+import type { ItemNav } from "@/components/apps/_ui/BottomNav";
+import { BarraVoltar, Cabecalho, EstadoVazio, Icone, Rating, Tag } from "@/components/apps/_ui/ui";
 import {
   SERVICOS,
   PROFISSIONAIS,
   HORARIOS_OCUPADOS,
+  CAPA_SALAO,
   gerarHorarios,
   type Servico,
   type Profissional,
@@ -26,33 +30,41 @@ export function HoraCertaApp({ accent }: { accent: string }) {
     <AppRuntime
       telaInicial="servicos"
       render={({ tela, go, openModal }: ScreenApi) => {
-        const TopBar = ({ titulo, voltarPara }: { titulo: string; voltarPara?: string }) => (
-          <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3.5 text-white" style={{ backgroundColor: accent }}>
-            {voltarPara && (
-              <button aria-label="voltar" onClick={() => go(voltarPara)} className="text-lg leading-none">
-                ←
-              </button>
-            )}
-            <span className="font-display text-base">{titulo}</span>
-          </div>
-        );
+        const nav: ItemNav[] = [
+          { id: "servicos", label: "Serviços", icone: "servicos", onSelect: () => go("servicos") },
+          { id: "agenda", label: "Agenda", icone: "agenda", onSelect: () => go("meus") },
+          {
+            id: "perfil",
+            label: "Perfil",
+            icone: "perfil",
+            onSelect: () => openModal("Seu perfil", "No app real, aqui ficam os seus dados, o histórico de atendimentos e as suas preferências. Nesta demonstração o foco é marcar um horário."),
+          },
+        ];
 
         if (tela === "servicos") {
           return (
-            <div className="pb-8">
-              <div className="px-4 pb-4 pt-5 text-white" style={{ backgroundColor: accent }}>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-display text-xl">HoraCerta</p>
-                    <p className="text-sm text-white/80">Escolha o serviço e marque sozinho.</p>
+            <AppScreen statusColor={accent} accent={accent} nav={nav} navAtual="servicos">
+              <div className="relative">
+                <img src={CAPA_SALAO} alt="Ambiente do salão" loading="lazy" decoding="async" className="h-40 w-full object-cover" />
+                <div className="absolute inset-0" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.78), rgba(0,0,0,0.05))" }} />
+                <button
+                  onClick={() => go("meus")}
+                  className="absolute right-3 top-3 flex items-center gap-1.5 rounded-full bg-black/40 px-3 py-1.5 text-[12px] font-medium text-white backdrop-blur transition active:scale-95"
+                >
+                  <Icone id="agenda" className="h-3.5 w-3.5" /> Agenda ({meus.length})
+                </button>
+                <div className="absolute inset-x-0 bottom-0 p-4 text-white">
+                  <Tag accent={accent} tone="glass">Aberto hoje</Tag>
+                  <p className="mt-1.5 font-display text-2xl leading-tight">HoraCerta</p>
+                  <div className="mt-1 flex items-center gap-3 text-[12px] text-white/90">
+                    <Rating nota={4.9} color="#FDE68A" />
+                    <span className="flex items-center gap-1"><Icone id="local" className="h-3.5 w-3.5" /> Centro</span>
                   </div>
-                  <button onClick={() => go("meus")} className="rounded-lg bg-white/15 px-3 py-1.5 text-xs font-medium">
-                    Meus ({meus.length})
-                  </button>
                 </div>
               </div>
-              <p className="px-4 pb-1 pt-4 text-xs font-semibold uppercase tracking-wide text-ink-faint">Serviços</p>
-              <ul>
+
+              <p className="px-4 pb-1 pt-4 text-[11px] font-bold uppercase tracking-wider text-ink-faint">Escolha o serviço</p>
+              <ul className="space-y-3 px-4 pt-1">
                 {SERVICOS.map((s) => (
                   <li key={s.id}>
                     <button
@@ -60,29 +72,37 @@ export function HoraCertaApp({ accent }: { accent: string }) {
                         setServico(s);
                         go("profissional");
                       }}
-                      className="flex w-full items-center gap-3 border-b border-black/5 px-4 py-3.5 text-left"
+                      className="flex w-full items-center gap-3 rounded-2xl border border-black/[0.06] bg-white p-2.5 text-left shadow-[0_1px_2px_rgba(0,0,0,0.03)] transition active:scale-[0.99]"
                     >
-                      <div className="grid h-12 w-12 place-items-center rounded-xl bg-black/5 text-2xl">{s.emoji}</div>
-                      <div className="flex-1">
-                        <p className="text-sm font-medium text-ink">{s.nome}</p>
-                        <p className="text-xs text-ink-faint">{s.duracao}</p>
+                      <div className="relative shrink-0">
+                        <img src={s.img} alt={s.nome} loading="lazy" decoding="async" className="h-16 w-16 rounded-xl object-cover" />
+                        {s.tag ? <span className="absolute left-1 top-1"><Tag accent={accent} tone="solid">{s.tag}</Tag></span> : null}
                       </div>
-                      <span className="text-sm font-semibold" style={{ color: accent }}>
-                        {formatBRL(s.precoCentavos)}
+                      <div className="min-w-0 flex-1">
+                        <p className="text-sm font-semibold text-ink">{s.nome}</p>
+                        <p className="mt-0.5 flex items-center gap-1 text-[12px] text-ink-faint">
+                          <Icone id="relogio" className="h-3.5 w-3.5" /> {s.duracao}
+                        </p>
+                        <p className="mt-1 text-sm font-bold" style={{ color: accent }}>{formatBRL(s.precoCentavos)}</p>
+                      </div>
+                      <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full text-white" style={{ backgroundColor: accent }}>
+                        <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><path d="m9 5 7 7-7 7" /></svg>
                       </span>
                     </button>
                   </li>
                 ))}
               </ul>
-            </div>
+              <div className="h-4" />
+            </AppScreen>
           );
         }
 
         if (tela === "profissional") {
           return (
-            <div className="pb-8">
-              <TopBar titulo="Escolha o profissional" voltarPara="servicos" />
-              <ul>
+            <AppScreen statusColor={accent} accent={accent}>
+              <BarraVoltar titulo="Escolha o profissional" onVoltar={() => go("servicos")} accent={accent} />
+              <p className="px-4 pt-4 text-[13px] text-ink-faint">{servico?.nome} · {servico?.duracao}</p>
+              <ul className="space-y-3 px-4 pt-3">
                 {PROFISSIONAIS.map((p) => (
                   <li key={p.id}>
                     <button
@@ -90,27 +110,27 @@ export function HoraCertaApp({ accent }: { accent: string }) {
                         setProfissional(p);
                         go("horario");
                       }}
-                      className="flex w-full items-center gap-3 border-b border-black/5 px-4 py-3.5 text-left"
+                      className="flex w-full items-center gap-3 rounded-2xl border border-black/[0.06] bg-white p-3 text-left transition active:scale-[0.99]"
                     >
-                      <div className="grid h-12 w-12 place-items-center rounded-full bg-black/5 text-2xl">{p.emoji}</div>
+                      <span className="grid h-12 w-12 shrink-0 place-items-center rounded-full text-2xl" style={{ backgroundColor: `${accent}14` }}>{p.emoji}</span>
                       <div className="flex-1">
-                        <p className="text-sm font-medium text-ink">{p.nome}</p>
-                        <p className="text-xs text-ink-faint">{p.especialidade}</p>
+                        <p className="text-sm font-semibold text-ink">{p.nome}</p>
+                        <p className="text-[12px] text-ink-faint">{p.especialidade}</p>
                       </div>
-                      <span className="text-lg text-ink-faint">›</span>
+                      <Rating nota={p.rating} />
                     </button>
                   </li>
                 ))}
               </ul>
-            </div>
+            </AppScreen>
           );
         }
 
         if (tela === "horario") {
           return (
-            <div className="pb-8">
-              <TopBar titulo="Horários de hoje" voltarPara="profissional" />
-              <p className="px-4 pt-4 text-sm text-ink-faint">
+            <AppScreen statusColor={accent} accent={accent}>
+              <BarraVoltar titulo="Horários de hoje" onVoltar={() => go("profissional")} accent={accent} />
+              <p className="px-4 pt-4 text-[13px] text-ink-faint">
                 {servico?.nome} com {profissional?.nome}
               </p>
               <div className="grid grid-cols-3 gap-2.5 px-4 pt-4">
@@ -126,98 +146,93 @@ export function HoraCertaApp({ accent }: { accent: string }) {
                       }}
                       className={
                         indisponivel
-                          ? "cursor-not-allowed rounded-xl border border-black/5 bg-black/5 py-2.5 text-sm text-ink-faint line-through"
-                          : "rounded-xl border border-black/10 py-2.5 text-sm font-medium text-ink transition hover:text-white"
+                          ? "cursor-not-allowed rounded-xl border border-black/5 bg-black/[0.04] py-2.5 text-sm text-ink-faint line-through"
+                          : "rounded-xl border py-2.5 text-sm font-semibold text-ink transition active:scale-95"
                       }
-                      style={indisponivel ? undefined : { borderColor: `${accent}55` }}
+                      style={indisponivel ? undefined : { borderColor: `${accent}40`, backgroundColor: `${accent}08` }}
                     >
                       {h}
                     </button>
                   );
                 })}
               </div>
-              <p className="px-4 pt-4 text-xs text-ink-faint">Horários riscados já estão ocupados.</p>
-            </div>
+              <p className="flex items-center gap-1.5 px-4 pt-4 text-[12px] text-ink-faint">
+                <span className="inline-block h-2.5 w-2.5 rounded-sm bg-black/[0.08]" /> Horários riscados já estão ocupados.
+              </p>
+            </AppScreen>
           );
         }
 
         if (tela === "confirmacao") {
           return (
-            <div className="pb-28">
-              <TopBar titulo="Confirmar agendamento" voltarPara="horario" />
+            <AppScreen
+              statusColor={accent}
+              accent={accent}
+              footer={
+                <button
+                  onClick={() => {
+                    if (!servico || !profissional || !horario) return;
+                    setMeus((m) => [{ id: `ag-${Date.now()}`, servico, profissional, horario }, ...m]);
+                    setServico(null);
+                    setProfissional(null);
+                    setHorario(null);
+                    go("meus");
+                  }}
+                  className="w-full rounded-2xl py-3 text-center text-sm font-semibold text-white shadow-lg transition active:scale-[0.99]"
+                  style={{ backgroundColor: accent }}
+                >
+                  Confirmar agendamento
+                </button>
+              }
+            >
+              <BarraVoltar titulo="Confirmar agendamento" onVoltar={() => go("horario")} accent={accent} />
               <div className="px-4 py-5">
-                <div className="rounded-2xl border border-black/5 bg-paper-soft p-4">
-                  <Linha rotulo="Serviço" valor={servico?.nome ?? "-"} />
-                  <Linha rotulo="Profissional" valor={profissional?.nome ?? "-"} />
-                  <Linha rotulo="Horário" valor={`Hoje, ${horario ?? "-"}`} />
-                  <Linha rotulo="Duração" valor={servico?.duracao ?? "-"} />
-                  <div className="mt-3 flex justify-between border-t border-black/5 pt-3">
-                    <span className="text-sm font-semibold text-ink">Total</span>
-                    <span className="text-sm font-semibold" style={{ color: accent }}>
-                      {servico ? formatBRL(servico.precoCentavos) : "-"}
-                    </span>
+                <div className="rounded-2xl border border-black/[0.06] bg-white p-4 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                  <div className="flex items-center gap-3 border-b border-black/[0.06] pb-3">
+                    {servico ? <img src={servico.img} alt={servico.nome} loading="lazy" decoding="async" className="h-14 w-14 rounded-xl object-cover" /> : null}
+                    <div>
+                      <p className="text-sm font-semibold text-ink">{servico?.nome}</p>
+                      <p className="text-[12px] text-ink-faint">{servico?.duracao}</p>
+                    </div>
+                  </div>
+                  <div className="pt-3">
+                    <Linha rotulo="Profissional" valor={profissional?.nome ?? "-"} />
+                    <Linha rotulo="Horário" valor={`Hoje, ${horario ?? "-"}`} />
+                    <div className="mt-2 flex justify-between border-t border-black/[0.06] pt-3">
+                      <span className="text-sm font-bold text-ink">Total</span>
+                      <span className="text-sm font-bold" style={{ color: accent }}>{servico ? formatBRL(servico.precoCentavos) : "-"}</span>
+                    </div>
                   </div>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  if (!servico || !profissional || !horario) return;
-                  setMeus((m) => [
-                    { id: `ag-${Date.now()}`, servico, profissional, horario },
-                    ...m,
-                  ]);
-                  setServico(null);
-                  setProfissional(null);
-                  setHorario(null);
-                  go("meus");
-                }}
-                className="fixed inset-x-4 bottom-4 z-20 rounded-xl py-3 text-center font-medium text-white shadow-lg md:absolute"
-                style={{ backgroundColor: accent }}
-              >
-                Confirmar agendamento
-              </button>
-            </div>
+            </AppScreen>
           );
         }
 
         // meus
         return (
-          <div className="pb-8">
-            <TopBar titulo="Meus agendamentos" voltarPara="servicos" />
+          <AppScreen statusColor={accent} accent={accent} nav={nav} navAtual="agenda">
+            <Cabecalho titulo="Meus agendamentos" sub={meus.length > 0 ? `${meus.length} marcado(s)` : undefined} accent={accent} />
             {meus.length === 0 ? (
-              <div className="grid place-items-center px-8 py-16 text-center">
-                <div>
-                  <p className="text-4xl">📅</p>
-                  <p className="mt-3 text-sm text-ink-faint">Você ainda não tem agendamentos.</p>
-                  <button onClick={() => go("servicos")} className="mt-4 text-sm font-medium" style={{ color: accent }}>
-                    Marcar um horário
-                  </button>
-                </div>
-              </div>
+              <EstadoVazio icone="agenda" titulo="Nenhum agendamento ainda" texto="Escolha um serviço e marque o seu horário." acao="Marcar um horário" onAcao={() => go("servicos")} accent={accent} />
             ) : (
-              <ul className="px-4 pt-4">
+              <ul className="space-y-3 px-4 pt-4">
                 {meus.map((a) => (
-                  <li key={a.id} className="mb-3 rounded-2xl border border-black/5 bg-paper-soft p-4">
-                    <div className="flex items-start justify-between">
-                      <div>
-                        <p className="text-sm font-medium text-ink">{a.servico.nome}</p>
-                        <p className="text-xs text-ink-faint">
-                          {a.profissional.nome} · Hoje, {a.horario}
-                        </p>
+                  <li key={a.id} className="rounded-2xl border border-black/[0.06] bg-white p-3 shadow-[0_1px_3px_rgba(0,0,0,0.04)]">
+                    <div className="flex items-center gap-3">
+                      <img src={a.servico.img} alt={a.servico.nome} loading="lazy" decoding="async" className="h-12 w-12 rounded-xl object-cover" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-ink">{a.servico.nome}</p>
+                        <p className="text-[12px] text-ink-faint">{a.profissional.nome} · Hoje, {a.horario}</p>
                       </div>
-                      <span className="text-sm font-semibold" style={{ color: accent }}>
-                        {formatBRL(a.servico.precoCentavos)}
-                      </span>
+                      <span className="text-sm font-bold" style={{ color: accent }}>{formatBRL(a.servico.precoCentavos)}</span>
                     </div>
                     <button
                       onClick={() => {
                         setMeus((m) => m.filter((x) => x.id !== a.id));
-                        openModal(
-                          "Agendamento cancelado",
-                          `O horário de ${a.servico.nome} com ${a.profissional.nome} às ${a.horario} foi cancelado e a vaga liberada.`,
-                        );
+                        openModal("Agendamento cancelado", `O horário de ${a.servico.nome} com ${a.profissional.nome} às ${a.horario} foi cancelado e a vaga liberada.`);
                       }}
-                      className="mt-3 w-full rounded-lg border border-black/10 py-2 text-sm font-medium text-ink"
+                      className="mt-3 w-full rounded-xl border border-black/10 py-2 text-sm font-semibold text-ink transition active:scale-[0.99]"
                     >
                       Cancelar
                     </button>
@@ -225,7 +240,8 @@ export function HoraCertaApp({ accent }: { accent: string }) {
                 ))}
               </ul>
             )}
-          </div>
+            <div className="h-4" />
+          </AppScreen>
         );
       }}
     />
@@ -236,7 +252,7 @@ function Linha({ rotulo, valor }: { rotulo: string; valor: string }) {
   return (
     <div className="flex justify-between py-1.5 text-sm">
       <span className="text-ink-faint">{rotulo}</span>
-      <span className="font-medium text-ink">{valor}</span>
+      <span className="font-semibold text-ink">{valor}</span>
     </div>
   );
 }

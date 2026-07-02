@@ -1,6 +1,9 @@
 "use client";
 import { useMemo, useState } from "react";
 import { AppRuntime, type ScreenApi } from "@/components/simulator/AppRuntime";
+import { AppScreen } from "@/components/apps/_ui/AppScreen";
+import type { ItemNav } from "@/components/apps/_ui/BottomNav";
+import { BarraVoltar, BotaoFavorito, Cabecalho, EstadoVazio, Icone, Rating, Tag } from "@/components/apps/_ui/ui";
 import { PRODUTOS, type Produto } from "@/lib/mock/loja";
 import { formatBRL } from "@/lib/format";
 
@@ -24,75 +27,121 @@ export function VitrineApp({ accent }: { accent: string }) {
   const dec = (id: string) =>
     setCarrinho((ls) => ls.flatMap((l) => (l.produto.id === id ? (l.qtd > 1 ? [{ ...l, qtd: l.qtd - 1 }] : []) : [l])));
 
-  const toggleFav = (id: string) =>
-    setFavoritos((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
+  const toggleFav = (id: string) => setFavoritos((f) => (f.includes(id) ? f.filter((x) => x !== id) : [...f, id]));
 
   return (
     <AppRuntime
       telaInicial="vitrine"
       render={({ tela, go, openModal }: ScreenApi) => {
-        const TopBar = ({ titulo, voltarPara }: { titulo: string; voltarPara?: string }) => (
-          <div className="sticky top-0 z-10 flex items-center gap-3 px-4 py-3.5 text-white" style={{ backgroundColor: accent }}>
-            {voltarPara && (
-              <button aria-label="voltar" onClick={() => go(voltarPara)} className="text-lg leading-none">
-                ←
-              </button>
-            )}
-            <span className="font-display text-base">{titulo}</span>
-          </div>
-        );
+        const nav: ItemNav[] = [
+          { id: "inicio", label: "Início", icone: "inicio", onSelect: () => go("vitrine") },
+          { id: "buscar", label: "Buscar", icone: "buscar", onSelect: () => openModal("Buscar produtos", "No app real, aqui o cliente busca por nome, categoria ou marca. Nesta demonstração a vitrine já mostra o catálogo completo.") },
+          { id: "sacola", label: "Sacola", icone: "sacola", onSelect: () => go("carrinho") },
+          { id: "favoritos", label: "Favoritos", icone: "coracao", onSelect: () => go("favoritos") },
+        ];
 
         if (tela === "vitrine") {
           return (
-            <div className="pb-24">
-              <div className="px-4 pb-4 pt-5 text-white" style={{ backgroundColor: accent }}>
-                <div className="flex items-start justify-between">
-                  <div>
-                    <p className="font-display text-xl">Vitrine</p>
-                    <p className="text-sm text-white/80">Sua loja aberta 24 horas.</p>
-                  </div>
+            <AppScreen
+              statusColor={accent}
+              accent={accent}
+              nav={nav}
+              navAtual="inicio"
+              footer={
+                qtdTotal > 0 ? (
                   <button
-                    onClick={() => go("favoritos")}
-                    aria-label="favoritos"
-                    className="grid h-9 w-9 place-items-center rounded-full bg-white/15 text-base"
+                    onClick={() => go("carrinho")}
+                    className="flex w-full items-center justify-between rounded-2xl px-4 py-3 text-white shadow-lg transition active:scale-[0.99]"
+                    style={{ backgroundColor: accent }}
                   >
-                    {favoritos.length > 0 ? "❤️" : "🤍"}
+                    <span className="flex items-center gap-2 text-sm font-semibold">
+                      <span className="grid h-6 w-6 place-items-center rounded-full bg-white/20 text-xs tabular-nums">{qtdTotal}</span>
+                      Ver sacola
+                    </span>
+                    <span className="text-sm font-bold">{formatBRL(total)}</span>
                   </button>
+                ) : undefined
+              }
+            >
+              <div className="px-4 pb-4 pt-4 text-white" style={{ background: `linear-gradient(135deg, ${accent}, ${accent}CC)` }}>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="font-display text-xl leading-tight">Vitrine</p>
+                    <p className="text-[12px] text-white/80">Sua loja aberta 24 horas.</p>
+                  </div>
+                  <BotaoFavorito ativo={favoritos.length > 0} onToggle={() => go("favoritos")} accent="#FFFFFF" className="h-9 w-9 bg-white/15 text-white" />
+                </div>
+                <div className="mt-3 flex items-center gap-2 rounded-xl bg-white px-3 py-2.5 text-ink-faint">
+                  <Icone id="buscar" className="h-4 w-4" />
+                  <span className="text-[13px]">Buscar na loja</span>
                 </div>
               </div>
+
               <div className="grid grid-cols-2 gap-3 px-4 pt-4">
-                {PRODUTOS.map((p) => (
-                  <button
-                    key={p.id}
-                    onClick={() => {
-                      setSelecionado(p);
-                      go("produto");
-                    }}
-                    className="overflow-hidden rounded-2xl border border-black/5 text-left"
-                  >
-                    <div className="grid h-28 place-items-center text-4xl" style={{ backgroundColor: p.cor }}>
-                      {p.emoji}
-                    </div>
-                    <div className="p-2.5">
-                      <p className="truncate text-sm font-medium text-ink">{p.nome}</p>
-                      <p className="mt-0.5 text-sm font-semibold" style={{ color: accent }}>
-                        {formatBRL(p.precoCentavos)}
-                      </p>
-                    </div>
-                  </button>
-                ))}
+                {PRODUTOS.map((p) => {
+                  const fav = favoritos.includes(p.id);
+                  return (
+                    <button
+                      key={p.id}
+                      onClick={() => {
+                        setSelecionado(p);
+                        go("produto");
+                      }}
+                      className="group overflow-hidden rounded-2xl border border-black/[0.06] bg-white text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition active:scale-[0.98]"
+                    >
+                      <div className="relative">
+                        <img
+                          src={p.img}
+                          alt={p.nome}
+                          loading="lazy"
+                          decoding="async"
+                          className="h-32 w-full object-cover"
+                        />
+                        {p.tag ? (
+                          <span className="absolute left-2 top-2">
+                            <Tag accent={accent} tone="solid">{p.tag}</Tag>
+                          </span>
+                        ) : null}
+                        <span
+                          role="button"
+                          tabIndex={0}
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            toggleFav(p.id);
+                          }}
+                          onKeyDown={(e) => {
+                            if (e.key === "Enter" || e.key === " ") {
+                              e.preventDefault();
+                              e.stopPropagation();
+                              toggleFav(p.id);
+                            }
+                          }}
+                          aria-label={fav ? "remover dos favoritos" : "favoritar"}
+                          className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition active:scale-90"
+                        >
+                          <svg viewBox="0 0 24 24" className="h-[15px] w-[15px]" fill={fav ? accent : "none"} stroke={fav ? accent : "#8A8A92"} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                            <path d="M12 20s-7-4.4-7-9.2A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7-2.6c0 4.8-7 9.2-7 9.2Z" />
+                          </svg>
+                        </span>
+                      </div>
+                      <div className="p-2.5">
+                        <p className="truncate text-[13px] font-semibold text-ink">{p.nome}</p>
+                        {p.rating ? <Rating nota={p.rating} className="mt-0.5" /> : null}
+                        <div className="mt-1 flex items-baseline gap-1.5">
+                          <span className="text-sm font-bold" style={{ color: accent }}>
+                            {formatBRL(p.precoCentavos)}
+                          </span>
+                          {p.precoDeCentavos ? (
+                            <span className="text-[11px] text-ink-faint line-through">{formatBRL(p.precoDeCentavos)}</span>
+                          ) : null}
+                        </div>
+                      </div>
+                    </button>
+                  );
+                })}
               </div>
-              {qtdTotal > 0 && (
-                <button
-                  onClick={() => go("carrinho")}
-                  className="fixed inset-x-4 bottom-4 z-20 flex items-center justify-between rounded-xl px-4 py-3 text-white shadow-lg md:absolute"
-                  style={{ backgroundColor: accent }}
-                >
-                  <span className="text-sm font-medium">Ver carrinho ({qtdTotal})</span>
-                  <span className="text-sm font-semibold">{formatBRL(total)}</span>
-                </button>
-              )}
-            </div>
+              <div className="h-4" />
+            </AppScreen>
           );
         }
 
@@ -100,103 +149,142 @@ export function VitrineApp({ accent }: { accent: string }) {
           if (!selecionado) return null;
           const favoritado = favoritos.includes(selecionado.id);
           return (
-            <div className="pb-28">
-              <TopBar titulo="Produto" voltarPara="vitrine" />
-              <div className="grid h-56 place-items-center text-7xl" style={{ backgroundColor: selecionado.cor }}>
-                {selecionado.emoji}
+            <AppScreen
+              statusColor={accent}
+              accent={accent}
+              footer={
+                <div className="flex gap-2">
+                  <BotaoFavorito
+                    ativo={favoritado}
+                    onToggle={() => toggleFav(selecionado.id)}
+                    accent={accent}
+                    className="h-12 w-14 shrink-0 border border-black/10 bg-white"
+                  />
+                  <button
+                    onClick={() => {
+                      add(selecionado);
+                      go("carrinho");
+                    }}
+                    className="flex-1 rounded-2xl py-3 text-center text-sm font-semibold text-white shadow-lg transition active:scale-[0.99]"
+                    style={{ backgroundColor: accent }}
+                  >
+                    Adicionar à sacola
+                  </button>
+                </div>
+              }
+            >
+              <BarraVoltar titulo={selecionado.nome} onVoltar={() => go("vitrine")} accent={accent} />
+              <img
+                src={selecionado.img}
+                alt={selecionado.nome}
+                loading="lazy"
+                decoding="async"
+                className="h-64 w-full object-cover"
+              />
+              <div className="px-4 py-4">
+                <div className="flex items-start justify-between gap-3">
+                  <p className="font-display text-lg text-ink">{selecionado.nome}</p>
+                  {selecionado.rating ? <Rating nota={selecionado.rating} className="mt-1 shrink-0" /> : null}
+                </div>
+                <p className="mt-1 text-[13px] leading-relaxed text-ink-faint">{selecionado.descricao}</p>
+                <div className="mt-3 flex items-baseline gap-2">
+                  <span className="text-2xl font-bold" style={{ color: accent }}>
+                    {formatBRL(selecionado.precoCentavos)}
+                  </span>
+                  {selecionado.precoDeCentavos ? (
+                    <span className="text-sm text-ink-faint line-through">{formatBRL(selecionado.precoDeCentavos)}</span>
+                  ) : null}
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {["Entrega rápida", "Troca grátis", "Compra segura"].map((v) => (
+                    <span key={v} className="flex items-center gap-1 rounded-full bg-black/[0.04] px-2.5 py-1 text-[11px] font-medium text-ink-faint">
+                      <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke={accent} strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="m5 13 4 4 10-10" /></svg>
+                      {v}
+                    </span>
+                  ))}
+                </div>
               </div>
-              <div className="px-4 py-5">
-                <p className="font-display text-lg text-ink">{selecionado.nome}</p>
-                <p className="mt-1 text-sm text-ink-faint">{selecionado.descricao}</p>
-                <p className="mt-3 text-2xl font-semibold" style={{ color: accent }}>
-                  {formatBRL(selecionado.precoCentavos)}
-                </p>
-              </div>
-              <div className="fixed inset-x-4 bottom-4 z-20 flex gap-2 md:absolute">
-                <button
-                  onClick={() => toggleFav(selecionado.id)}
-                  aria-label="favoritar"
-                  className="grid w-14 place-items-center rounded-xl border border-black/10 bg-white text-lg shadow-lg"
-                >
-                  {favoritado ? "❤️" : "🤍"}
-                </button>
-                <button
-                  onClick={() => {
-                    add(selecionado);
-                    go("carrinho");
-                  }}
-                  className="flex-1 rounded-xl py-3 text-center font-medium text-white shadow-lg"
-                  style={{ backgroundColor: accent }}
-                >
-                  Adicionar ao carrinho
-                </button>
-              </div>
-            </div>
+            </AppScreen>
           );
         }
 
         if (tela === "carrinho") {
           return (
-            <div className="pb-28">
-              <TopBar titulo="Seu carrinho" voltarPara="vitrine" />
-              {carrinho.length === 0 ? (
-                <div className="grid place-items-center px-8 py-16 text-center">
-                  <div>
-                    <p className="text-4xl">🛒</p>
-                    <p className="mt-3 text-sm text-ink-faint">Seu carrinho está vazio.</p>
-                    <button onClick={() => go("vitrine")} className="mt-4 text-sm font-medium" style={{ color: accent }}>
-                      Ver produtos
+            <AppScreen
+              statusColor={accent}
+              accent={accent}
+              nav={nav}
+              navAtual="sacola"
+              footer={
+                carrinho.length > 0 ? (
+                  <div className="space-y-3">
+                    <div className="flex justify-between text-sm font-bold text-ink">
+                      <span>Total</span>
+                      <span className="tabular-nums">{formatBRL(total)}</span>
+                    </div>
+                    <button
+                      onClick={() => go("checkout")}
+                      className="w-full rounded-2xl py-3 text-center text-sm font-semibold text-white shadow-lg transition active:scale-[0.99]"
+                      style={{ backgroundColor: accent }}
+                    >
+                      Finalizar compra
                     </button>
                   </div>
-                </div>
+                ) : undefined
+              }
+            >
+              <Cabecalho titulo="Sua sacola" sub="Vitrine" accent={accent} />
+              {carrinho.length === 0 ? (
+                <EstadoVazio icone="sacola" titulo="Sua sacola está vazia" texto="Explore a vitrine e adicione produtos." acao="Ver produtos" onAcao={() => go("vitrine")} accent={accent} />
               ) : (
-                <>
-                  <ul>
-                    {carrinho.map((l) => (
-                      <li key={l.produto.id} className="flex items-center gap-3 border-b border-black/5 px-4 py-3">
-                        <div className="grid h-11 w-11 place-items-center rounded-xl text-xl" style={{ backgroundColor: l.produto.cor }}>
-                          {l.produto.emoji}
-                        </div>
-                        <div className="flex-1">
-                          <p className="text-sm text-ink">{l.produto.nome}</p>
-                          <p className="text-xs text-ink-faint">{formatBRL(l.produto.precoCentavos)}</p>
-                        </div>
-                        <div className="flex items-center gap-2">
-                          <button aria-label="menos" onClick={() => dec(l.produto.id)} className="grid h-7 w-7 place-items-center rounded-lg bg-black/5">
-                            −
-                          </button>
-                          <span className="w-4 text-center text-sm">{l.qtd}</span>
-                          <button aria-label="mais" onClick={() => add(l.produto)} className="grid h-7 w-7 place-items-center rounded-lg text-white" style={{ backgroundColor: accent }}>
-                            +
-                          </button>
-                        </div>
-                      </li>
-                    ))}
-                  </ul>
-                  <div className="flex justify-between px-4 py-4 text-base font-semibold text-ink">
-                    <span>Total</span>
-                    <span>{formatBRL(total)}</span>
-                  </div>
-                  <button
-                    onClick={() => go("checkout")}
-                    className="fixed inset-x-4 bottom-4 z-20 rounded-xl py-3 text-center font-medium text-white shadow-lg md:absolute"
-                    style={{ backgroundColor: accent }}
-                  >
-                    Finalizar compra
-                  </button>
-                </>
+                <ul className="space-y-3 px-4 pt-3">
+                  {carrinho.map((l) => (
+                    <li key={l.produto.id} className="flex items-center gap-3 rounded-2xl border border-black/[0.06] bg-white p-2.5">
+                      <img src={l.produto.img} alt={l.produto.nome} loading="lazy" decoding="async" className="h-14 w-14 rounded-xl object-cover" />
+                      <div className="min-w-0 flex-1">
+                        <p className="truncate text-sm font-semibold text-ink">{l.produto.nome}</p>
+                        <p className="text-sm font-bold" style={{ color: accent }}>{formatBRL(l.produto.precoCentavos)}</p>
+                      </div>
+                      <div className="flex items-center gap-1.5">
+                        <button aria-label="menos" onClick={() => dec(l.produto.id)} className="grid h-7 w-7 place-items-center rounded-full bg-black/5 transition active:scale-90">−</button>
+                        <span className="w-4 text-center text-sm font-semibold tabular-nums">{l.qtd}</span>
+                        <button aria-label="mais" onClick={() => add(l.produto)} className="grid h-7 w-7 place-items-center rounded-full text-white transition active:scale-90" style={{ backgroundColor: accent }}>+</button>
+                      </div>
+                    </li>
+                  ))}
+                </ul>
               )}
-            </div>
+              <div className="h-4" />
+            </AppScreen>
           );
         }
 
         if (tela === "checkout") {
           return (
-            <div className="pb-28">
-              <TopBar titulo="Checkout" voltarPara="carrinho" />
+            <AppScreen
+              statusColor={accent}
+              accent={accent}
+              footer={
+                <button
+                  onClick={() => {
+                    openModal(
+                      "Compra confirmada",
+                      "Seu pedido foi registrado e você receberá o código de rastreio. No app real, o pagamento é processado com segurança.",
+                    );
+                    setCarrinho([]);
+                    go("vitrine");
+                  }}
+                  className="w-full rounded-2xl py-3 text-center text-sm font-semibold text-white shadow-lg transition active:scale-[0.99]"
+                  style={{ backgroundColor: accent }}
+                >
+                  Confirmar compra · {formatBRL(total)}
+                </button>
+              }
+            >
+              <BarraVoltar titulo="Checkout" onVoltar={() => go("carrinho")} accent={accent} />
               <div className="space-y-5 px-4 py-5">
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">Endereço de entrega</p>
+                  <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-ink-faint">Endereço de entrega</p>
                   <div className="space-y-2">
                     <CampoFake rotulo="Rua e número" valor="Av. Paulista, 1000" />
                     <div className="flex gap-2">
@@ -206,54 +294,32 @@ export function VitrineApp({ accent }: { accent: string }) {
                   </div>
                 </div>
                 <div>
-                  <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-ink-faint">Forma de pagamento</p>
+                  <p className="mb-2 text-[11px] font-bold uppercase tracking-wider text-ink-faint">Forma de pagamento</p>
                   <div className="space-y-2">
                     <OpcaoPagamento rotulo="Cartão de crédito" detalhe="Final 4242" ativo accent={accent} />
                     <OpcaoPagamento rotulo="Pix" detalhe="Aprovação na hora" accent={accent} />
                   </div>
                 </div>
-                <div className="flex justify-between border-t border-black/5 pt-3 text-base font-semibold text-ink">
+                <div className="flex justify-between border-t border-black/[0.06] pt-3 text-sm font-bold text-ink">
                   <span>Total</span>
-                  <span>{formatBRL(total)}</span>
+                  <span className="tabular-nums">{formatBRL(total)}</span>
                 </div>
               </div>
-              <button
-                onClick={() => {
-                  openModal(
-                    "Compra confirmada",
-                    "Seu pedido foi registrado e você receberá o código de rastreio. No app real, o pagamento é processado com segurança.",
-                  );
-                  setCarrinho([]);
-                  go("vitrine");
-                }}
-                className="fixed inset-x-4 bottom-4 z-20 rounded-xl py-3 text-center font-medium text-white shadow-lg md:absolute"
-                style={{ backgroundColor: accent }}
-              >
-                Confirmar compra
-              </button>
-            </div>
+            </AppScreen>
           );
         }
 
         // favoritos
         const favs = PRODUTOS.filter((p) => favoritos.includes(p.id));
         return (
-          <div className="pb-8">
-            <TopBar titulo="Favoritos" voltarPara="vitrine" />
+          <AppScreen statusColor={accent} accent={accent} nav={nav} navAtual="favoritos">
+            <Cabecalho titulo="Favoritos" sub={`${favs.length} ${favs.length === 1 ? "item salvo" : "itens salvos"}`} accent={accent} />
             {favs.length === 0 ? (
-              <div className="grid place-items-center px-8 py-16 text-center">
-                <div>
-                  <p className="text-4xl">🤍</p>
-                  <p className="mt-3 text-sm text-ink-faint">Nenhum favorito ainda.</p>
-                  <button onClick={() => go("vitrine")} className="mt-4 text-sm font-medium" style={{ color: accent }}>
-                    Explorar produtos
-                  </button>
-                </div>
-              </div>
+              <EstadoVazio icone="coracao" titulo="Nenhum favorito ainda" texto="Toque no coração dos produtos que você amar." acao="Explorar produtos" onAcao={() => go("vitrine")} accent={accent} />
             ) : (
-              <ul>
+              <ul className="space-y-3 px-4 pt-3">
                 {favs.map((p) => (
-                  <li key={p.id} className="flex items-center gap-3 border-b border-black/5 px-4 py-3">
+                  <li key={p.id} className="flex items-center gap-3 rounded-2xl border border-black/[0.06] bg-white p-2.5">
                     <button
                       onClick={() => {
                         setSelecionado(p);
@@ -261,24 +327,19 @@ export function VitrineApp({ accent }: { accent: string }) {
                       }}
                       className="flex flex-1 items-center gap-3 text-left"
                     >
-                      <div className="grid h-11 w-11 place-items-center rounded-xl text-xl" style={{ backgroundColor: p.cor }}>
-                        {p.emoji}
-                      </div>
-                      <div>
-                        <p className="text-sm text-ink">{p.nome}</p>
-                        <p className="text-xs font-semibold" style={{ color: accent }}>
-                          {formatBRL(p.precoCentavos)}
-                        </p>
+                      <img src={p.img} alt={p.nome} loading="lazy" decoding="async" className="h-14 w-14 rounded-xl object-cover" />
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-ink">{p.nome}</p>
+                        <p className="text-sm font-bold" style={{ color: accent }}>{formatBRL(p.precoCentavos)}</p>
                       </div>
                     </button>
-                    <button onClick={() => toggleFav(p.id)} aria-label="remover dos favoritos" className="text-lg">
-                      ❤️
-                    </button>
+                    <BotaoFavorito ativo onToggle={() => toggleFav(p.id)} accent={accent} className="h-9 w-9" />
                   </li>
                 ))}
               </ul>
             )}
-          </div>
+            <div className="h-4" />
+          </AppScreen>
         );
       }}
     />
@@ -287,7 +348,7 @@ export function VitrineApp({ accent }: { accent: string }) {
 
 function CampoFake({ rotulo, valor }: { rotulo: string; valor: string }) {
   return (
-    <div className="flex-1 rounded-xl border border-black/10 px-3 py-2">
+    <div className="flex-1 rounded-xl border border-black/10 bg-white px-3 py-2">
       <p className="text-[10px] uppercase tracking-wide text-ink-faint">{rotulo}</p>
       <p className="text-sm text-ink">{valor}</p>
     </div>
@@ -298,16 +359,13 @@ function OpcaoPagamento({ rotulo, detalhe, ativo, accent }: { rotulo: string; de
   return (
     <div
       className="flex items-center justify-between rounded-xl border px-3 py-2.5"
-      style={{ borderColor: ativo ? accent : "rgba(0,0,0,0.1)" }}
+      style={{ borderColor: ativo ? accent : "rgba(0,0,0,0.1)", backgroundColor: ativo ? `${accent}0A` : "#fff" }}
     >
       <div>
         <p className="text-sm font-medium text-ink">{rotulo}</p>
         <p className="text-xs text-ink-faint">{detalhe}</p>
       </div>
-      <span
-        className="grid h-5 w-5 place-items-center rounded-full text-[10px] text-white"
-        style={{ backgroundColor: ativo ? accent : "#D6D6D0" }}
-      >
+      <span className="grid h-5 w-5 place-items-center rounded-full text-[10px] text-white" style={{ backgroundColor: ativo ? accent : "#D6D6D0" }}>
         {ativo ? "✓" : ""}
       </span>
     </div>

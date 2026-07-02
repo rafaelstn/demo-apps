@@ -23,7 +23,7 @@ export function AppRuntime({
   const openModal = useCallback((title: string, body: string) => setModal({ title, body }), []);
 
   return (
-    <div className="relative h-full w-full overflow-y-auto bg-white text-ink">
+    <div className="relative h-full w-full overflow-hidden bg-white text-ink">
       {render({ tela, go, openModal })}
       <Modal open={!!modal} onClose={() => setModal(null)} title={modal?.title ?? ""}>
         {modal?.body}
