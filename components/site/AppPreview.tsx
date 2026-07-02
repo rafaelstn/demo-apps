@@ -36,8 +36,8 @@ function Estrela({ nota }: { nota: string }) {
 function PreviewDelivery({ accent }: { accent: string }) {
   const itens = [
     { img: "/img/delivery/burger.jpg", nome: "Burger da Casa", preco: "R$ 32,90", nota: "4.9" },
+    { img: "/img/delivery/pizza.jpg", nome: "Pizza Individual", preco: "R$ 34,90", nota: "4.8" },
     { img: "/img/delivery/batata.jpg", nome: "Batata Rústica", preco: "R$ 18,90", nota: "4.8" },
-    { img: "/img/delivery/refri.jpg", nome: "Refrigerante", preco: "R$ 6,90", nota: "4.7" },
   ];
   return (
     <>
@@ -66,10 +66,10 @@ function PreviewDelivery({ accent }: { accent: string }) {
 /* Loja: grade de produtos estilo e-commerce */
 function PreviewLoja({ accent }: { accent: string }) {
   const produtos = [
-    { img: "/img/loja/tenis.jpg", nome: "Tênis Runner", preco: "R$ 249,90" },
-    { img: "/img/loja/jaqueta.jpg", nome: "Jaqueta", preco: "R$ 319,90" },
-    { img: "/img/loja/mochila.jpg", nome: "Mochila Urbana", preco: "R$ 179,90" },
-    { img: "/img/loja/relogio.jpg", nome: "Relógio Smart", preco: "R$ 389,90" },
+    { img: "/img/loja/tenis.jpg", nome: "Tênis Casual", preco: "R$ 299,90" },
+    { img: "/img/loja/jaqueta.jpg", nome: "Jaqueta Jeans", preco: "R$ 249,90" },
+    { img: "/img/loja/mochila.jpg", nome: "Mochila Urban", preco: "R$ 189,90" },
+    { img: "/img/loja/relogio.jpg", nome: "Relógio Slim", preco: "R$ 399,90" },
   ];
   return (
     <>
@@ -104,12 +104,12 @@ function PreviewImobiliaria({ accent }: { accent: string }) {
           className="absolute bottom-2 left-2 rounded-md px-2 py-1 text-[11px] font-semibold text-white"
           style={{ backgroundColor: accent }}
         >
-          R$ 1.900/mês
+          R$ 320.000
         </span>
       </div>
       <div className="px-3 py-2.5">
         <p className="text-[12px] font-semibold text-ink">Apto 2 quartos · Centro</p>
-        <p className="mt-0.5 text-[10px] text-ink-faint">2 quartos · 1 vaga · 58 m²</p>
+        <p className="mt-0.5 text-[10px] text-ink-faint">2 quartos · 1 vaga · 62 m²</p>
         <div className="mt-2 flex items-center gap-2">
           <Foto src="/img/imobiliaria/casa.jpg" className="h-8 w-10 rounded-md" />
           <Foto src="/img/imobiliaria/studio.jpg" className="h-8 w-10 rounded-md" />
@@ -125,9 +125,9 @@ function PreviewImobiliaria({ accent }: { accent: string }) {
 /* Academia: grade de aulas com foto e vagas */
 function PreviewAcademia({ accent }: { accent: string }) {
   const aulas = [
-    { img: "/img/academia/spinning.jpg", nome: "Spinning", info: "18h · 2 vagas" },
-    { img: "/img/academia/funcional.jpg", nome: "Funcional", info: "19h · 6 vagas" },
-    { img: "/img/academia/yoga.jpg", nome: "Yoga", info: "07h · 4 vagas" },
+    { img: "/img/academia/spinning.jpg", nome: "Spinning", info: "07:00 · 3 vagas" },
+    { img: "/img/academia/funcional.jpg", nome: "Funcional", info: "09:00 · lotada" },
+    { img: "/img/academia/yoga.jpg", nome: "Yoga", info: "18:00 · 8 vagas" },
   ];
   return (
     <>
@@ -156,9 +156,9 @@ function PreviewAcademia({ accent }: { accent: string }) {
 /* Agendamento: salão com foto de capa e serviços */
 function PreviewAgendamento({ accent }: { accent: string }) {
   const servicos = [
-    { img: "/img/agendamento/corte.jpg", nome: "Corte masculino", info: "45 min", preco: "R$ 50" },
-    { img: "/img/agendamento/barba.jpg", nome: "Barba", info: "30 min", preco: "R$ 35" },
-    { img: "/img/agendamento/coloracao.jpg", nome: "Coloração", info: "90 min", preco: "R$ 120" },
+    { img: "/img/agendamento/corte.jpg", nome: "Corte", info: "45 min", preco: "R$ 40" },
+    { img: "/img/agendamento/barba.jpg", nome: "Barba", info: "30 min", preco: "R$ 30" },
+    { img: "/img/agendamento/coloracao.jpg", nome: "Coloração", info: "1h30", preco: "R$ 120" },
   ];
   return (
     <>
@@ -198,25 +198,25 @@ function PreviewFidelidade({ accent }: { accent: string }) {
           <span className="font-display text-[13px]">Clube+</span>
           <span className="text-[10px] text-white/80">Cartão fidelidade</span>
         </div>
-        <p className="mt-2 text-2xl font-semibold leading-none">320</p>
+        <p className="mt-2 text-2xl font-semibold leading-none">1.240</p>
         <p className="text-[10px] text-white/85">pontos acumulados</p>
       </div>
       <div className="mt-3">
-        <p className="text-[10px] font-medium text-ink-faint">Selos do mês · 8 de 10</p>
+        <p className="text-[10px] font-medium text-ink-faint">Selos do mês · 7 de 10</p>
         <div className="mt-1.5 flex gap-1">
           {Array.from({ length: 10 }).map((_, k) => (
             <span
               key={k}
               className="h-3.5 w-3.5 rounded-full"
-              style={{ backgroundColor: k < 8 ? accent : "#E7E7E3" }}
+              style={{ backgroundColor: k < 7 ? accent : "#E7E7E3" }}
             />
           ))}
         </div>
       </div>
       <div className="mt-3 flex items-center justify-between rounded-lg bg-paper-soft px-2.5 py-1.5">
-        <span className="text-[10px] text-ink">☕ Café grátis</span>
+        <span className="text-[10px] text-ink">🎁 R$ 50 de desconto</span>
         <span className="text-[10px] font-semibold" style={{ color: accent }}>
-          faltam 40 pts
+          faltam 260 pts
         </span>
       </div>
     </div>

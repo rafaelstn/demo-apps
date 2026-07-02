@@ -12,7 +12,7 @@ export type Produto = {
 };
 
 export const PRODUTOS: Produto[] = [
-  { id: "tenis", nome: "Tênis Runner", descricao: "Amortecimento leve para corrida e dia a dia.", precoCentavos: 29900, emoji: "👟", cor: "#EDE9FE", img: "/img/loja/tenis.jpg", tag: "Novo", rating: 4.8 },
+  { id: "tenis", nome: "Tênis Casual", descricao: "Estilo retrô e confortável para o dia a dia, unissex.", precoCentavos: 29900, emoji: "👟", cor: "#EDE9FE", img: "/img/loja/tenis.jpg", tag: "Novo", rating: 4.8 },
   { id: "camiseta", nome: "Camiseta Basic", descricao: "Algodão premium, caimento reto, toque macio.", precoCentavos: 7900, emoji: "👕", cor: "#FCE7F3", img: "/img/loja/camiseta.jpg", rating: 4.6 },
   { id: "jaqueta", nome: "Jaqueta Jeans", descricao: "Lavagem clássica, corte moderno, unissex.", precoCentavos: 24900, precoDeCentavos: 29900, emoji: "🧥", cor: "#DBEAFE", img: "/img/loja/jaqueta.jpg", tag: "Oferta", rating: 4.9 },
   { id: "bone", nome: "Boné Logo", descricao: "Aba curva com bordado da marca.", precoCentavos: 5900, emoji: "🧢", cor: "#DCFCE7", img: "/img/loja/bone.jpg", rating: 4.5 },

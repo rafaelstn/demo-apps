@@ -16,8 +16,8 @@ export const CARDAPIO: ItemCardapio[] = [
   { id: "pizza", nome: "Pizza Individual", desc: "Massa artesanal, mussarela e manjericão", precoCentavos: 3490, categoria: "Lanches", emoji: "🍕", img: "/img/delivery/pizza.jpg", rating: 4.8 },
   { id: "batata", nome: "Batata Rústica", desc: "Porção com alecrim e maionese da casa", precoCentavos: 1890, categoria: "Acompanhamentos", emoji: "🍟", img: "/img/delivery/batata.jpg", tag: "Mais pedido", rating: 4.8 },
   { id: "frango", nome: "Frango Crocante", desc: "Iscas empanadas com molho da casa", precoCentavos: 2490, categoria: "Acompanhamentos", emoji: "🍗", img: "/img/delivery/frango.jpg", rating: 4.7 },
-  { id: "refri", nome: "Refrigerante Lata", desc: "350ml bem gelado", precoCentavos: 690, categoria: "Bebidas", emoji: "🥤", img: "/img/delivery/refri.jpg" },
-  { id: "suco", nome: "Suco Natural", desc: "Laranja ou maracujá, 400ml", precoCentavos: 1190, categoria: "Bebidas", emoji: "🧃", img: "/img/delivery/suco.jpg" },
+  { id: "refri", nome: "Suco de Laranja", desc: "Laranja natural espremida na hora, 400ml", precoCentavos: 890, categoria: "Bebidas", emoji: "🍊", img: "/img/delivery/refri.jpg" },
+  { id: "suco", nome: "Suco Natural", desc: "Maracujá ou abacaxi, 400ml", precoCentavos: 1190, categoria: "Bebidas", emoji: "🧃", img: "/img/delivery/suco.jpg" },
   { id: "milkshake", nome: "Milkshake", desc: "Chocolate com chantilly e calda", precoCentavos: 1690, categoria: "Sobremesas", emoji: "🥤", img: "/img/delivery/milkshake.jpg", tag: "Novo", rating: 4.9 },
   { id: "brownie", nome: "Brownie da Casa", desc: "Chocolate meio amargo com calda quente", precoCentavos: 1290, categoria: "Sobremesas", emoji: "🍫", img: "/img/delivery/brownie.jpg", rating: 4.8 },
 ];

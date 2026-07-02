@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useRef, useState, type CSSProperties } from "react";
+import { useEffect, useLayoutEffect, useRef, useState, type CSSProperties } from "react";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 import { APPS } from "@/lib/catalog/apps";
 import { APP_REGISTRY } from "@/components/apps/registry";
@@ -34,7 +34,10 @@ const FADE_MS = 320; // duração do fade-out antes de trocar (casa com a transi
 // (h-[720px] w-[356px] com p-3 => 332x696). Renderizar aqui e escalar mantém
 // o hero pixel-fiel à demo polida, só que menor.
 const SCREEN_W = 332;
-const SCREEN_H = 696;
+// Altura do canvas afinada para a proporção do frame do hero: com a largura
+// como fator limitante, a folga do "contain" cai toda no rodapé (onde some atrás
+// da bottom nav clara), e o topo (status bar) cola na borda, sem tarja branca.
+const SCREEN_H = 700;
 
 // Rótulo curto do nicho para o selo "ao vivo" (primeira palavra do nicho).
 function nichoCurto(nicho: string): string {
@@ -54,10 +57,12 @@ export function HeroPhone() {
   const swapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Escala do app para caber no frame estreito do hero (medida do container real).
+  // Valor inicial ~ o do breakpoint mobile, para o primeiro paint já sair perto do
+  // certo; useLayoutEffect corrige ANTES de pintar (sem o "começa menor e estica").
   const telaRef = useRef<HTMLDivElement | null>(null);
-  const [escala, setEscala] = useState(0.72);
+  const [escala, setEscala] = useState(0.705);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     const el = telaRef.current;
     if (!el) return;
     const medir = () => {
@@ -152,11 +157,13 @@ export function HeroPhone() {
             {/* Notch */}
             <div className="absolute left-1/2 top-2.5 z-20 h-5 w-24 -translate-x-1/2 rounded-full bg-black" />
 
-            {/* Tela: app real escalado para caber, com cross-fade + leve push na troca */}
+            {/* Tela: app real escalado para caber, com cross-fade + leve push na troca.
+                inert tira os controles internos (decorativos) do fluxo de foco/teclado. */}
             <div
               ref={telaRef}
               className="relative h-full w-full overflow-hidden rounded-[2rem] bg-white"
               aria-hidden
+              inert
             >
               {/* Slot estável que faz o fade/push (não remonta) */}
               <div
@@ -167,16 +174,18 @@ export function HeroPhone() {
                   transition: `opacity ${FADE_MS}ms ease-out, transform ${FADE_MS}ms ease-out`,
                 }}
               >
-                {/* Canvas do app em tamanho de demo, centralizado e escalado para caber.
+                {/* Canvas do app em tamanho de demo, colado no TOPO e escalado para
+                    caber pela largura. A folga do contain cai no rodapé (some atrás da
+                    bottom nav clara); o topo encosta na borda, sem tarja branca.
                     key={atual} => remonta ao trocar de app (só um montado por vez). */}
                 <div
                   key={atual}
-                  className="absolute left-1/2 top-1/2"
+                  className="absolute left-1/2 top-0"
                   style={{
                     width: SCREEN_W,
                     height: SCREEN_H,
-                    transform: `translate(-50%, -50%) scale(${escala})`,
-                    transformOrigin: "center center",
+                    transform: `translateX(-50%) scale(${escala})`,
+                    transformOrigin: "top center",
                   }}
                 >
                   <AppComp accent={accent} />
