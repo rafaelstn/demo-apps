@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, type CSSProperties } from "react";
+import { useEffect, useRef, useState, type CSSProperties } from "react";
 import { useReducedMotion } from "@/lib/hooks/useReducedMotion";
 import { formatBRL } from "@/lib/format";
 import { CARDAPIO, TAXA_ENTREGA_CENTAVOS } from "@/lib/mock/delivery";
@@ -7,8 +7,17 @@ import { CARDAPIO, TAXA_ENTREGA_CENTAVOS } from "@/lib/mock/delivery";
 /**
  * Celular flutuante do hero com um app de delivery rodando ao vivo.
  * As 4 telas do fluxo (cardápio, carrinho, acompanhar, sucesso) avançam
- * sozinhas em loop. Respeita prefers-reduced-motion: sem movimento, mostra
- * só a primeira tela, estática.
+ * sozinhas em loop, com cara de app sendo TOCADO: um ponteiro de toque
+ * aparece sobre o botão de ação da tela, dá o ripple, e aí a tela troca
+ * (cross-fade + um leve push), como uma navegação de app real, nao um
+ * slideshow.
+ *
+ * Cada tela tem uma STATUS BAR simulada (hora + ícones) no topo, na cor do
+ * app, pra o notch do aparelho ficar sobre ela e o conteúdo comecar abaixo,
+ * sem colidir com a pílula do notch.
+ *
+ * Respeita prefers-reduced-motion: sem movimento e sem toque, mostra só a
+ * primeira tela, estática.
  *
  * Mock visual próprio e leve (nao instancia o app real), pra manter a home
  * fluida. O accent do conteúdo é o laranja do nicho de delivery; o halo ao
@@ -17,7 +26,8 @@ import { CARDAPIO, TAXA_ENTREGA_CENTAVOS } from "@/lib/mock/delivery";
 
 const LARANJA = "#F97316"; // accent do nicho delivery
 const TELAS = 4;
-const INTERVALO_MS = 2200;
+const INTERVALO_MS = 2600; // tempo de cada tela
+const TOQUE_ANTES_MS = 650; // quanto antes da troca o toque aparece
 
 // Itens do cardápio usados no mock (reaproveita o mock real de delivery).
 const burger = CARDAPIO.find((i) => i.id === "burger")!;
@@ -45,13 +55,74 @@ function ThumbItem({ id }: { id: string }) {
   );
 }
 
+/* Status bar simulada no topo de cada tela (hora + sinal/wifi/bateria). */
+function StatusBar() {
+  return (
+    <div
+      className="flex shrink-0 items-center justify-between px-4 pb-1 pt-2 text-[10px] font-medium text-white"
+      style={{ backgroundColor: LARANJA }}
+    >
+      <span className="tabular-nums">9:41</span>
+      <span className="flex items-center gap-1.5" aria-hidden>
+        {/* Sinal */}
+        <svg viewBox="0 0 18 12" className="h-2.5 w-auto" fill="currentColor">
+          <rect x="0" y="8" width="3" height="4" rx="0.5" />
+          <rect x="5" y="5" width="3" height="7" rx="0.5" />
+          <rect x="10" y="2.5" width="3" height="9.5" rx="0.5" />
+          <rect x="15" y="0" width="3" height="12" rx="0.5" opacity="0.5" />
+        </svg>
+        {/* Wi-Fi */}
+        <svg viewBox="0 0 16 12" className="h-2.5 w-auto" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round">
+          <path d="M2 4.5a9 9 0 0 1 12 0" />
+          <path d="M4.2 7a6 6 0 0 1 7.6 0" />
+          <path d="M8 9.6h.01" strokeWidth="2" />
+        </svg>
+        {/* Bateria */}
+        <span className="flex items-center gap-0.5">
+          <span className="flex h-2.5 w-4 items-center rounded-[2px] border border-white/80 p-[1px]">
+            <span className="h-full w-3/4 rounded-[1px] bg-white" />
+          </span>
+          <span className="h-1 w-0.5 rounded-r-sm bg-white/80" />
+        </span>
+      </span>
+    </div>
+  );
+}
+
+/* Cabeçalho colorido do app (logo abaixo da status bar, mesma cor). */
+function AppHeader({ titulo, sub }: { titulo: string; sub?: string }) {
+  return (
+    <div className="shrink-0 px-4 pb-3 pt-1 text-white" style={{ backgroundColor: LARANJA }}>
+      <p className="font-display text-lg leading-tight">{titulo}</p>
+      {sub ? <p className="text-[11px] text-white/85">{sub}</p> : null}
+    </div>
+  );
+}
+
+function TopBar({ titulo }: { titulo: string }) {
+  return (
+    <div className="flex shrink-0 items-center gap-2 px-4 pb-3 pt-1 text-white" style={{ backgroundColor: LARANJA }}>
+      <span className="text-base leading-none">←</span>
+      <span className="font-display text-[13px]">{titulo}</span>
+    </div>
+  );
+}
+
+function BotaoAcao({ children }: { children: React.ReactNode }) {
+  return (
+    <div className="mt-auto p-3">
+      <div className="rounded-xl py-2.5 text-center text-[13px] font-medium text-white shadow-lg" style={{ backgroundColor: LARANJA }}>
+        {children}
+      </div>
+    </div>
+  );
+}
+
 function TelaCardapio() {
   return (
     <div className="flex h-full flex-col bg-white">
-      <div className="px-4 pb-3 pt-4 text-white" style={{ backgroundColor: LARANJA }}>
-        <p className="font-display text-lg leading-tight">SaborJá</p>
-        <p className="text-[11px] text-white/85">Entrega em ~30 min · aberto agora</p>
-      </div>
+      <StatusBar />
+      <AppHeader titulo="SaborJá" sub="Entrega em ~30 min · aberto agora" />
       <p className="px-4 pb-1 pt-3 text-[10px] font-semibold uppercase tracking-wide text-ink-faint">Lanches</p>
       <ul className="px-2">
         {[burger, batata, refri].map((it, idx) => (
@@ -89,15 +160,6 @@ function TelaCardapio() {
   );
 }
 
-function TopBar({ titulo }: { titulo: string }) {
-  return (
-    <div className="flex items-center gap-2 px-4 py-3 text-white" style={{ backgroundColor: LARANJA }}>
-      <span className="text-base leading-none">←</span>
-      <span className="font-display text-[13px]">{titulo}</span>
-    </div>
-  );
-}
-
 function LinhaTotais({ label, valor, forte }: { label: string; valor: string; forte?: boolean }) {
   return (
     <div className={`flex justify-between ${forte ? "text-[13px] font-semibold text-ink" : "text-[12px] text-ink-faint"}`}>
@@ -110,6 +172,7 @@ function LinhaTotais({ label, valor, forte }: { label: string; valor: string; fo
 function TelaCarrinho() {
   return (
     <div className="flex h-full flex-col bg-white">
+      <StatusBar />
       <TopBar titulo="Seu carrinho" />
       <ul className="px-2 pt-1">
         {[burger, refri].map((it) => (
@@ -134,20 +197,17 @@ function TelaCarrinho() {
         <LinhaTotais label="Taxa de entrega" valor={formatBRL(TAXA_ENTREGA_CENTAVOS)} />
         <LinhaTotais label="Total" valor={formatBRL(burger.precoCentavos + refri.precoCentavos + TAXA_ENTREGA_CENTAVOS)} forte />
       </div>
-      <div className="mt-auto p-3">
-        <div className="rounded-xl py-2.5 text-center text-[13px] font-medium text-white" style={{ backgroundColor: LARANJA }}>
-          Finalizar pedido
-        </div>
-      </div>
+      <BotaoAcao>Finalizar pedido</BotaoAcao>
     </div>
   );
 }
 
 function TelaAcompanhar() {
   const etapas = ["Pedido recebido", "Em preparo", "Saiu para entrega", "Entregue"];
-  const atual = 1;
+  const atual = 2;
   return (
     <div className="flex h-full flex-col bg-white">
+      <StatusBar />
       <TopBar titulo="Acompanhar pedido" />
       <div className="px-4 py-4">
         <p className="text-[11px] text-ink-faint">Pedido #2048 · chega em ~28 min</p>
@@ -165,19 +225,23 @@ function TelaAcompanhar() {
           ))}
         </ol>
       </div>
+      <BotaoAcao>Confirmar recebimento</BotaoAcao>
     </div>
   );
 }
 
 function TelaSucesso() {
   return (
-    <div className="grid h-full place-items-center bg-white px-6 text-center">
-      <div>
-        <div className="mx-auto grid h-14 w-14 place-items-center rounded-full text-xl text-white" style={{ backgroundColor: LARANJA }}>
-          ✓
+    <div className="flex h-full flex-col bg-white">
+      <StatusBar />
+      <div className="grid flex-1 place-items-center px-6 text-center">
+        <div>
+          <div className="mx-auto grid h-14 w-14 place-items-center rounded-full text-xl text-white" style={{ backgroundColor: LARANJA }}>
+            ✓
+          </div>
+          <p className="mt-3 font-display text-base text-ink">Pedido entregue!</p>
+          <p className="mt-1 text-[12px] text-ink-faint">Total {formatBRL(totalMock)}. É assim que o seu cliente pede.</p>
         </div>
-        <p className="mt-3 font-display text-base text-ink">Pedido entregue!</p>
-        <p className="mt-1 text-[12px] text-ink-faint">Total {formatBRL(totalMock)}. É assim que o seu cliente pede.</p>
       </div>
     </div>
   );
@@ -185,17 +249,62 @@ function TelaSucesso() {
 
 const PAINEIS = [TelaCardapio, TelaCarrinho, TelaAcompanhar, TelaSucesso];
 
+// Posição do toque simulado sobre o botão de ação de cada tela.
+// Todas as telas com ação têm o botão na base; a de sucesso nao recebe toque.
+const POS_TOQUE: (CSSProperties | null)[] = [
+  { left: "50%", bottom: "26px" }, // cardápio: "Ver carrinho"
+  { left: "50%", bottom: "26px" }, // carrinho: "Finalizar pedido"
+  { left: "50%", bottom: "26px" }, // acompanhar: "Confirmar recebimento"
+  null, // sucesso
+];
+
+/* Ponteiro de toque: círculo com ripple, some/aparece perto da troca. */
+function Toque({ pos }: { pos: CSSProperties }) {
+  return (
+    <div className="pointer-events-none absolute z-30 -translate-x-1/2" style={pos} aria-hidden>
+      <div className="relative grid place-items-center">
+        <span className="tap-ripple absolute h-9 w-9 rounded-full bg-white/70" />
+        <span className="tap-dot h-6 w-6 rounded-full border-2 border-white bg-white/35 shadow-[0_2px_10px_rgba(0,0,0,0.35)]" />
+      </div>
+    </div>
+  );
+}
+
 export function HeroPhone() {
   const reduzido = useReducedMotion();
-  const [i, setI] = useState(0);
+  const [idx, setIdx] = useState(0);
+  const [tocando, setTocando] = useState(false);
+  const tapTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nextTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     if (reduzido) return;
-    const t = setInterval(() => setI((v) => (v + 1) % TELAS), INTERVALO_MS);
-    return () => clearInterval(t);
+    let ativo = true;
+
+    const ciclo = () => {
+      // Toque aparece um pouco antes da troca de tela.
+      tapTimer.current = setTimeout(() => {
+        if (ativo) setTocando(true);
+      }, INTERVALO_MS - TOQUE_ANTES_MS);
+      // Troca de tela e reinicia o ciclo.
+      nextTimer.current = setTimeout(() => {
+        if (!ativo) return;
+        setTocando(false);
+        setIdx((v) => (v + 1) % TELAS);
+        ciclo();
+      }, INTERVALO_MS);
+    };
+
+    ciclo();
+    return () => {
+      ativo = false;
+      if (tapTimer.current) clearTimeout(tapTimer.current);
+      if (nextTimer.current) clearTimeout(nextTimer.current);
+    };
   }, [reduzido]);
 
-  const idx = reduzido ? 0 : i;
+  const atual = reduzido ? 0 : idx;
+  const posToque = POS_TOQUE[atual];
 
   return (
     <div className="flex flex-col items-center">
@@ -226,18 +335,28 @@ export function HeroPhone() {
           >
             {/* Notch */}
             <div className="absolute left-1/2 top-2.5 z-20 h-5 w-24 -translate-x-1/2 rounded-full bg-black" />
-            {/* Tela */}
+            {/* Tela: telas empilhadas com cross-fade + leve push (navegação de app) */}
             <div className="relative h-full w-full overflow-hidden rounded-[2rem] bg-white">
-              <div
-                className="flex h-full w-full transition-transform duration-700 ease-out"
-                style={{ transform: `translateX(-${idx * 100}%)` }}
-              >
-                {PAINEIS.map((Painel, k) => (
-                  <div key={k} className="h-full w-full shrink-0">
+              {PAINEIS.map((Painel, k) => {
+                const ativa = k === atual;
+                return (
+                  <div
+                    key={k}
+                    className="absolute inset-0 transition-all duration-500 ease-out"
+                    style={{
+                      opacity: ativa ? 1 : 0,
+                      transform: ativa ? "translateX(0)" : "translateX(12px)",
+                      zIndex: ativa ? 10 : 0,
+                    }}
+                    aria-hidden={!ativa}
+                  >
                     <Painel />
                   </div>
-                ))}
-              </div>
+                );
+              })}
+
+              {/* Ponteiro de toque simulado */}
+              {!reduzido && tocando && posToque ? <Toque pos={posToque} /> : null}
             </div>
           </div>
         </div>
@@ -250,8 +369,8 @@ export function HeroPhone() {
             key={k}
             className="h-1.5 rounded-full transition-all duration-300"
             style={{
-              width: k === idx ? 18 : 6,
-              backgroundColor: k === idx ? LARANJA : "rgba(255,255,255,0.22)",
+              width: k === atual ? 18 : 6,
+              backgroundColor: k === atual ? LARANJA : "rgba(255,255,255,0.22)",
             }}
           />
         ))}
