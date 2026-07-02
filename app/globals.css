@@ -41,10 +41,100 @@
     background-size: 48px 48px;
   }
 
+  /* Spotlight que segue o cursor no card (cor via --spot, posição via --x/--y) */
+  .spotlight {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .spotlight::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    background: radial-gradient(
+      300px circle at var(--x, 50%) var(--y, 50%),
+      var(--spot, rgba(37, 99, 235, 0.16)),
+      transparent 60%
+    );
+    opacity: 0;
+    transition: opacity 0.35s ease;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  .spotlight:hover::before,
+  .spotlight:focus-within::before {
+    opacity: 1;
+  }
+
+  .spotlight > * {
+    position: relative;
+    z-index: 1;
+  }
+
   @media (prefers-reduced-motion: reduce) {
     * {
       animation-duration: 0.001ms !important;
       transition-duration: 0.001ms !important;
     }
+
+    .hero-float,
+    .hero-glow,
+    .live-dot {
+      animation: none !important;
+    }
+
+    .spotlight::before {
+      display: none;
+    }
   }
+}
+
+/* Flutuação do celular do hero */
+@keyframes heroFloat {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.hero-float {
+  animation: heroFloat 6s ease-in-out infinite;
+  will-change: transform;
+}
+
+/* Pulso suave do halo */
+@keyframes glowPulse {
+  0%,
+  100% {
+    opacity: 0.55;
+  }
+  50% {
+    opacity: 0.85;
+  }
+}
+
+.hero-glow {
+  animation: glowPulse 5s ease-in-out infinite;
+}
+
+/* Ponto de "ao vivo" */
+@keyframes liveDot {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.65);
+  }
+}
+
+.live-dot {
+  animation: liveDot 1.4s ease-in-out infinite;
 }

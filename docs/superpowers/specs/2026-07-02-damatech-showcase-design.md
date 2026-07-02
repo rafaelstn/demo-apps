@@ -160,6 +160,18 @@ Fatiamento sugerido (detalhar no plano):
 4. Camada de venda (CTAs WhatsApp, selo de preço, painel de nicho) + página `/regulamento` + polish.
 5. QA (Thiago) + segurança/LGPD (André revisa o regulamento) + deploy Vercel.
 
+## 12.1. Evolução v1.1 (feedback do Rafael, 2026-07-02)
+
+Após o primeiro checkpoint navegável, o Rafael pediu elevar o nível. Escopo adicional:
+
+- **Home vira landing de venda completa** (não só galeria). Seções, na ordem: hero com celular ao vivo; dores/promessa; showcase dos 6 modelos (o cliente se vê no nicho dele); o que está incluso (apps nativos, código-fonte, UI/UX, publicação Google Play, 1 mês suporte e garantia); como funciona (3 passos: briefing, desenvolvimento, publicação); autoridade real ("a mesma engenharia que roda em banco e governo", do site oficial); oferta com preço + entrada + "consulte o regulamento"; FAQ; CTA final WhatsApp.
+- **Tom da copy: direto e comercial** (foco em resultado e preço acessível, gatilho de desejo, CTA forte). Decidido pelo Rafael.
+- **Sem prova social inventada.** Nada de depoimentos fictícios. Usar apenas autoridade verdadeira (experiência com banco e governo, do site oficial). Decidido pelo Rafael.
+- **Polish premium** (Fernanda): hero com celular flutuando e app rodando ao vivo (loop, respeita prefers-reduced-motion); cards com spotlight no cursor, elevação no hover e FOTO REAL (não mockup genérico, "sem cara de IA").
+- **Logo completo**: usar o wordmark oficial `logo-d.svg` (DAMATECH por extenso), invertido para branco no tema dark, no header e footer. (Aplicado.)
+- **Interior dos apps modernizado**: dark premium OU claro rico, com FOTOS REAIS (Unsplash, licença comercial livre, baixadas em `public/img/<nicho>/`), cards com imagem grande, ratings/notas, tags, bottom nav, no nível das referências de UI premium que o Rafael enviou. Substituir os emojis/placeholders por fotos.
+- **Imagens**: banco livre (Unsplash/Pexels, uso comercial) baixadas localmente em `public/img/`, ou geradas por IA quando faltar. O Rafael não tem fotos próprias; André valida licença no fechamento.
+
 ## 12. Critérios de aceite (v1)
 
 - Galeria mostra os 6 modelos com a identidade real da DamaTech.
