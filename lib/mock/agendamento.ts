@@ -30,7 +30,17 @@ export const PROFISSIONAIS: Profissional[] = [
 // Foto de capa do salão (banner do topo).
 export const CAPA_SALAO = "/img/agendamento/salao.jpg";
 
-export const HORARIOS_OCUPADOS = ["09:30", "11:00", "13:00", "15:30", "16:00"];
+// Cada profissional tem a própria agenda: horários já ocupados são diferentes
+// entre eles (como num app real). A chave é o id do profissional.
+export const HORARIOS_OCUPADOS_POR_PROFISSIONAL: Record<string, string[]> = {
+  bruno: ["09:30", "11:00", "14:00", "15:30", "17:00"],
+  camila: ["09:00", "10:00", "13:30", "16:00", "16:30"],
+  diego: ["10:30", "11:30", "12:00", "15:00", "18:00"],
+};
+
+export function horariosOcupadosDe(idProfissional: string): string[] {
+  return HORARIOS_OCUPADOS_POR_PROFISSIONAL[idProfissional] ?? [];
+}
 
 export function gerarHorarios(): string[] {
   const out: string[] = [];

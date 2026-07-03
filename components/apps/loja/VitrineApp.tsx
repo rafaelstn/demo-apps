@@ -81,62 +81,58 @@ export function VitrineApp({ accent }: { accent: string }) {
                 {PRODUTOS.map((p) => {
                   const fav = favoritos.includes(p.id);
                   return (
-                    <button
+                    <article
                       key={p.id}
-                      onClick={() => {
-                        setSelecionado(p);
-                        go("produto");
-                      }}
-                      className="group overflow-hidden rounded-2xl border border-black/[0.06] bg-white text-left shadow-[0_1px_3px_rgba(0,0,0,0.04)] transition active:scale-[0.98]"
+                      className="relative overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.04)]"
                     >
-                      <div className="relative">
-                        <img
-                          src={p.img}
-                          alt={p.nome}
-                          loading="lazy"
-                          decoding="async"
-                          className="h-32 w-full object-cover"
-                        />
-                        {p.tag ? (
-                          <span className="absolute left-2 top-2">
-                            <Tag accent={accent} tone="solid">{p.tag}</Tag>
-                          </span>
-                        ) : null}
-                        <span
-                          role="button"
-                          tabIndex={0}
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            toggleFav(p.id);
-                          }}
-                          onKeyDown={(e) => {
-                            if (e.key === "Enter" || e.key === " ") {
-                              e.preventDefault();
-                              e.stopPropagation();
-                              toggleFav(p.id);
-                            }
-                          }}
-                          aria-label={fav ? "remover dos favoritos" : "favoritar"}
-                          className="absolute right-2 top-2 grid h-7 w-7 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition active:scale-90"
-                        >
-                          <svg viewBox="0 0 24 24" className="h-[15px] w-[15px]" fill={fav ? accent : "none"} stroke={fav ? accent : "#8A8A92"} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-                            <path d="M12 20s-7-4.4-7-9.2A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7-2.6c0 4.8-7 9.2-7 9.2Z" />
-                          </svg>
-                        </span>
-                      </div>
-                      <div className="p-2.5">
-                        <p className="truncate text-[13px] font-semibold text-ink">{p.nome}</p>
-                        {p.rating ? <Rating nota={p.rating} className="mt-0.5" /> : null}
-                        <div className="mt-1 flex items-baseline gap-1.5">
-                          <span className="text-sm font-bold" style={{ color: accent }}>
-                            {formatBRL(p.precoCentavos)}
-                          </span>
-                          {p.precoDeCentavos ? (
-                            <span className="text-[11px] text-ink-faint line-through">{formatBRL(p.precoDeCentavos)}</span>
+                      {/* Botão de navegação cobre o card; o favoritar é irmão, por cima. */}
+                      <button
+                        onClick={() => {
+                          setSelecionado(p);
+                          go("produto");
+                        }}
+                        aria-label={`Ver ${p.nome}`}
+                        className="block w-full text-left transition active:scale-[0.98]"
+                      >
+                        <div className="relative">
+                          <img
+                            src={p.img}
+                            alt={p.nome}
+                            loading="lazy"
+                            decoding="async"
+                            className="h-32 w-full object-cover"
+                          />
+                          {p.tag ? (
+                            <span className="absolute left-2 top-2">
+                              <Tag accent={accent} tone="solid">{p.tag}</Tag>
+                            </span>
                           ) : null}
                         </div>
-                      </div>
-                    </button>
+                        <div className="p-2.5">
+                          <p className="truncate text-[13px] font-semibold text-ink">{p.nome}</p>
+                          {p.rating ? <Rating nota={p.rating} className="mt-0.5" /> : null}
+                          <div className="mt-1 flex items-baseline gap-1.5">
+                            <span className="text-sm font-bold" style={{ color: accent }}>
+                              {formatBRL(p.precoCentavos)}
+                            </span>
+                            {p.precoDeCentavos ? (
+                              <span className="text-[11px] text-ink-faint line-through">{formatBRL(p.precoDeCentavos)}</span>
+                            ) : null}
+                          </div>
+                        </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleFav(p.id)}
+                        aria-label={fav ? "remover dos favoritos" : "favoritar"}
+                        aria-pressed={fav}
+                        className="absolute right-2 top-2 z-10 grid h-7 w-7 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition active:scale-90"
+                      >
+                        <svg viewBox="0 0 24 24" className="h-[15px] w-[15px]" fill={fav ? accent : "none"} stroke={fav ? accent : "#8A8A92"} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 20s-7-4.4-7-9.2A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7-2.6c0 4.8-7 9.2-7 9.2Z" />
+                        </svg>
+                      </button>
+                    </article>
                   );
                 })}
               </div>

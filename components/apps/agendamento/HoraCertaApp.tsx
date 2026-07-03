@@ -7,7 +7,7 @@ import { BarraVoltar, Cabecalho, EstadoVazio, Icone, Monograma, Rating, Tag } fr
 import {
   SERVICOS,
   PROFISSIONAIS,
-  HORARIOS_OCUPADOS,
+  HORARIOS_OCUPADOS_POR_PROFISSIONAL,
   CAPA_SALAO,
   gerarHorarios,
   type Servico,
@@ -22,29 +22,37 @@ export function HoraCertaApp({ accent }: { accent: string }) {
   const [profissional, setProfissional] = useState<Profissional | null>(null);
   const [horario, setHorario] = useState<string | null>(null);
   const [meus, setMeus] = useState<Agendamento[]>([]);
+  // Slots marcados nesta sessão, por profissional. Somam-se à agenda base do
+  // mock, então marcar um horário deixa ele ocupado só para aquele profissional.
+  const [ocupadosSessao, setOcupadosSessao] = useState<Record<string, string[]>>({});
 
   const horarios = gerarHorarios();
-  const ocupados = new Set(HORARIOS_OCUPADOS);
-  const livres = horarios.filter((h) => !ocupados.has(h));
-  // Próxima janela livre de cada profissional (coerente entre telas).
+  // Agenda combinada (base do mock + o que foi marcado agora) de um profissional.
+  const ocupadosDe = (idProfissional: string) =>
+    new Set<string>([
+      ...(HORARIOS_OCUPADOS_POR_PROFISSIONAL[idProfissional] ?? []),
+      ...(ocupadosSessao[idProfissional] ?? []),
+    ]);
+  // Primeiro horário realmente livre daquele profissional (coerente entre telas).
   const proximaDe = (idProfissional: string) => {
-    const i = PROFISSIONAIS.findIndex((p) => p.id === idProfissional);
-    return livres[i] ?? livres[0] ?? null;
+    const ocupados = ocupadosDe(idProfissional);
+    return horarios.find((h) => !ocupados.has(h)) ?? null;
   };
-  // Agrupa a grade do dia em períodos, com contagem de vagas livres.
+  // Grade do profissional selecionado, agrupada em períodos com vagas livres.
+  const ocupadosProfAtual = profissional ? ocupadosDe(profissional.id) : new Set<string>();
   const periodos = [
     { id: "manha", nome: "Manhã", faixa: (h: number) => h < 12 },
     { id: "tarde", nome: "Tarde", faixa: (h: number) => h >= 12 && h < 18 },
     { id: "noite", nome: "Noite", faixa: (h: number) => h >= 18 },
   ].map((p) => {
     const slots = horarios.filter((h) => p.faixa(Number(h.slice(0, 2))));
-    return { ...p, slots, vagas: slots.filter((h) => !ocupados.has(h)).length };
+    return { ...p, slots, vagas: slots.filter((h) => !ocupadosProfAtual.has(h)).length };
   }).filter((p) => p.slots.length > 0);
 
   return (
     <AppRuntime
       telaInicial="servicos"
-      render={({ tela, go, openModal }: ScreenApi) => {
+      render={({ tela, go, openModal, openConfirm }: ScreenApi) => {
         const nav: ItemNav[] = [
           { id: "servicos", label: "Serviços", icone: "servicos", onSelect: () => go("servicos") },
           { id: "agenda", label: "Agenda", icone: "agenda", onSelect: () => go("meus") },
@@ -201,7 +209,7 @@ export function HoraCertaApp({ accent }: { accent: string }) {
                   </div>
                   <div className="mt-2.5 grid grid-cols-3 gap-2.5">
                     {per.slots.map((h) => {
-                      const indisponivel = ocupados.has(h);
+                      const indisponivel = ocupadosProfAtual.has(h);
                       return (
                         <button
                           key={h}
@@ -242,6 +250,11 @@ export function HoraCertaApp({ accent }: { accent: string }) {
                   onClick={() => {
                     if (!servico || !profissional || !horario) return;
                     setMeus((m) => [{ id: `ag-${Date.now()}`, servico, profissional, horario }, ...m]);
+                    // Ocupa o slot para aquele profissional pelo resto da sessão.
+                    setOcupadosSessao((o) => {
+                      const atual = o[profissional.id] ?? [];
+                      return atual.includes(horario) ? o : { ...o, [profissional.id]: [...atual, horario] };
+                    });
                     setServico(null);
                     setProfissional(null);
                     setHorario(null);
@@ -322,10 +335,22 @@ export function HoraCertaApp({ accent }: { accent: string }) {
                       <span className="shrink-0 text-sm font-bold" style={{ color: accent }}>{formatBRL(a.servico.precoCentavos)}</span>
                     </div>
                     <button
-                      onClick={() => {
-                        setMeus((m) => m.filter((x) => x.id !== a.id));
-                        openModal("Agendamento cancelado", `O horário de ${a.servico.nome} com ${a.profissional.nome} às ${a.horario} foi cancelado e a vaga liberada.`);
-                      }}
+                      onClick={() =>
+                        openConfirm(
+                          "Cancelar agendamento",
+                          `Deseja cancelar ${a.servico.nome} com ${a.profissional.nome} às ${a.horario}? A vaga volta a ficar disponível.`,
+                          () => {
+                            setMeus((m) => m.filter((x) => x.id !== a.id));
+                            // Libera a vaga daquele profissional (só o que foi marcado na sessão).
+                            setOcupadosSessao((o) => {
+                              const atual = o[a.profissional.id] ?? [];
+                              return { ...o, [a.profissional.id]: atual.filter((h) => h !== a.horario) };
+                            });
+                            openModal("Agendamento cancelado", `O horário de ${a.servico.nome} com ${a.profissional.nome} às ${a.horario} foi cancelado e a vaga liberada.`);
+                          },
+                          { confirmLabel: "Cancelar agendamento", cancelLabel: "Voltar", danger: true },
+                        )
+                      }
                       className="mt-3 w-full rounded-xl border border-black/10 py-2 text-sm font-semibold text-ink transition active:scale-[0.99]"
                     >
                       Cancelar

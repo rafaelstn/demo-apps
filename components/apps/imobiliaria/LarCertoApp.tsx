@@ -60,24 +60,13 @@ export function LarCertoApp({ accent }: { accent: string }) {
                 {IMOVEIS.map((im) => {
                   const fav = favoritos.includes(im.id);
                   return (
-                    <li key={im.id} className="overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
-                      <button onClick={() => { setImovelSel(im); go("imovel"); }} className="block w-full text-left transition active:scale-[0.99]">
+                    <li key={im.id} className="relative overflow-hidden rounded-2xl border border-black/[0.06] bg-white shadow-[0_1px_3px_rgba(0,0,0,0.05)]">
+                      {/* Botão de navegação cobre o card; o salvar é irmão, por cima. */}
+                      <button onClick={() => { setImovelSel(im); go("imovel"); }} aria-label={`Ver ${im.titulo}`} className="block w-full text-left transition active:scale-[0.99]">
                         <div className="relative">
                           <img src={im.img} alt={im.titulo} loading="lazy" decoding="async" className="h-44 w-full object-cover" />
                           <div className="absolute inset-x-0 bottom-0 h-20" style={{ background: "linear-gradient(to top, rgba(0,0,0,0.65), transparent)" }} />
                           {im.tag ? <span className="absolute left-3 top-3"><Tag accent={accent} tone="solid">{im.tag}</Tag></span> : null}
-                          <span
-                            role="button"
-                            tabIndex={0}
-                            onClick={(e) => { e.stopPropagation(); toggleFav(im.id); }}
-                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); e.stopPropagation(); toggleFav(im.id); } }}
-                            aria-label={fav ? "remover dos salvos" : "salvar"}
-                            className="absolute right-3 top-3 grid h-8 w-8 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition active:scale-90"
-                          >
-                            <svg viewBox="0 0 24 24" className="h-[17px] w-[17px]" fill={fav ? accent : "none"} stroke={fav ? accent : "#8A8A92"} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
-                              <path d="M12 20s-7-4.4-7-9.2A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7-2.6c0 4.8-7 9.2-7 9.2Z" />
-                            </svg>
-                          </span>
                           <p className="absolute bottom-2.5 left-3 font-display text-xl font-semibold text-white drop-shadow">{formatBRL(im.precoCentavos)}</p>
                         </div>
                         <div className="p-3">
@@ -90,6 +79,17 @@ export function LarCertoApp({ accent }: { accent: string }) {
                             <Spec valor={`${im.vagas}`} rotulo="vagas" />
                           </div>
                         </div>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={() => toggleFav(im.id)}
+                        aria-label={fav ? "remover dos salvos" : "salvar"}
+                        aria-pressed={fav}
+                        className="absolute right-3 top-3 z-10 grid h-8 w-8 place-items-center rounded-full bg-white/90 shadow-sm backdrop-blur transition active:scale-90"
+                      >
+                        <svg viewBox="0 0 24 24" className="h-[17px] w-[17px]" fill={fav ? accent : "none"} stroke={fav ? accent : "#8A8A92"} strokeWidth="1.9" strokeLinecap="round" strokeLinejoin="round">
+                          <path d="M12 20s-7-4.4-7-9.2A3.8 3.8 0 0 1 12 8a3.8 3.8 0 0 1 7-2.6c0 4.8-7 9.2-7 9.2Z" />
+                        </svg>
                       </button>
                     </li>
                   );
