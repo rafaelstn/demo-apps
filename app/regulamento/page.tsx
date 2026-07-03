@@ -5,7 +5,7 @@ import { CtaWhatsApp } from "@/components/site/CtaWhatsApp";
 import { REGULAMENTO, REGULAMENTO_INTRO, REGULAMENTO_VIGENCIA } from "@/lib/legal/regulamento";
 
 export const metadata: Metadata = {
-  title: "Regulamento da Oferta · DamaTech",
+  title: "Regulamento da Oferta · Damatech",
   description: "Termos e condições comerciais da oferta de desenvolvimento de aplicativos nativos da DamaTech.",
 };
 

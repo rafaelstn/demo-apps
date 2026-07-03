@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin", "latin-ext"], variable: "--font-sans", 
 const geist = Geist({ subsets: ["latin", "latin-ext"], variable: "--font-display", display: "swap" });
 
 export const metadata: Metadata = {
-  title: "DamaTech, crie o seu aplicativo",
+  title: "Damatech, crie o seu aplicativo",
   description: "Aplicativos nativos sob medida para o seu negócio. Escolha um modelo e veja rodando de verdade.",
 };
 
