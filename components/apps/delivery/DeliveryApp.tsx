@@ -279,7 +279,11 @@ export function DeliveryApp({ accent }: { accent: string }) {
                             className="grid h-7 w-7 shrink-0 place-items-center rounded-full text-xs font-semibold text-white"
                             style={{ backgroundColor: feito ? accent : "#E2E2DE", color: feito ? "#fff" : "#9A9A9F" }}
                           >
-                            {feito ? "✓" : idx + 1}
+                            {feito ? (
+                              <svg viewBox="0 0 24 24" className="h-4 w-4" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><path d="m5 13 4 4 10-10" /></svg>
+                            ) : (
+                              idx + 1
+                            )}
                           </span>
                           {!ultimo ? (
                             <span className="my-0.5 h-6 w-0.5 rounded-full" style={{ backgroundColor: idx < atual ? accent : "#E2E2DE" }} />

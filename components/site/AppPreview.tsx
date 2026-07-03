@@ -23,10 +23,18 @@ function Foto({ src, className }: { src: string; className?: string }) {
   );
 }
 
+function EstrelaSvg({ className = "h-2.5 w-2.5" }: { className?: string }) {
+  return (
+    <svg viewBox="0 0 24 24" className={className} fill="currentColor" aria-hidden>
+      <path d="m12 4 2.35 4.76 5.26.77-3.8 3.7.9 5.24L12 16.98 7.09 18.47l.9-5.24-3.8-3.7 5.26-.77L12 4Z" />
+    </svg>
+  );
+}
+
 function Estrela({ nota }: { nota: string }) {
   return (
     <span className="inline-flex items-center gap-0.5 text-[10px] font-semibold text-amber-500">
-      <span aria-hidden>★</span>
+      <EstrelaSvg />
       {nota}
     </span>
   );
@@ -43,7 +51,7 @@ function PreviewDelivery({ accent }: { accent: string }) {
     <>
       <div className="flex items-center justify-between px-3.5 py-2.5 text-white" style={{ backgroundColor: accent }}>
         <span className="font-display text-[13px]">SaborJá</span>
-        <span className="text-[10px] text-white/90">★ 4.9 · ~30 min</span>
+        <span className="inline-flex items-center gap-1 text-[10px] text-white/90"><EstrelaSvg /> 4.9 · ~30 min</span>
       </div>
       <ul className="px-2 py-1">
         {itens.map((it) => (
@@ -214,7 +222,14 @@ function PreviewFidelidade({ accent }: { accent: string }) {
         </div>
       </div>
       <div className="mt-3 flex items-center justify-between rounded-lg bg-paper-soft px-2.5 py-1.5">
-        <span className="text-[10px] text-ink">🎁 R$ 50 de desconto</span>
+        <span className="inline-flex items-center gap-1 text-[10px] text-ink">
+          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden style={{ color: accent }}>
+            <rect x="4" y="8.5" width="16" height="3.5" rx="1" />
+            <path d="M5.5 12v7.5h13V12M12 8.5v11" />
+            <path d="M12 8.5C10.4 8.5 8 8.2 8 6.4A2 2 0 0 1 12 6a2 2 0 0 1 4 .4c0 1.8-2.4 2.1-4 2.1Z" />
+          </svg>
+          R$ 50 de desconto
+        </span>
         <span className="text-[10px] font-semibold" style={{ color: accent }}>
           faltam 260 pts
         </span>
@@ -243,7 +258,12 @@ export function AppPreview({ modelo }: { modelo: ModeloApp }) {
       {Preview ? (
         <Preview accent={modelo.accent} />
       ) : (
-        <div className="grid h-full place-items-center text-2xl">📱</div>
+        <div className="grid h-full place-items-center text-ink-faint">
+          <svg viewBox="0 0 24 24" className="h-8 w-8" fill="none" stroke="currentColor" strokeWidth={1.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden>
+            <rect x="7" y="3" width="10" height="18" rx="2.5" />
+            <path d="M11 18.5h2" />
+          </svg>
+        </div>
       )}
     </div>
   );

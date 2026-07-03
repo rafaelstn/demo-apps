@@ -1,9 +1,11 @@
+import type { IconeId } from "@/components/apps/_ui/ui";
+
 export type Cupom = {
   id: string;
   titulo: string;
   descricao: string;
   custoPontos: number;
-  emoji: string;
+  icone: IconeId;
 };
 
 export type Movimentacao = {
@@ -22,9 +24,9 @@ export const SELOS_TOTAL = 10;
 export const SELOS_PREENCHIDOS = 7;
 
 export const CUPONS: Cupom[] = [
-  { id: "desc10", titulo: "R$ 10 OFF", descricao: "Desconto na próxima compra acima de R$ 50.", custoPontos: 300, emoji: "🏷️" },
-  { id: "frete", titulo: "Frete grátis", descricao: "Válido para entregas na sua região.", custoPontos: 200, emoji: "🚚" },
-  { id: "brinde", titulo: "Brinde surpresa", descricao: "Retire um mimo da casa no balcão.", custoPontos: 450, emoji: "🎁" },
+  { id: "desc10", titulo: "R$ 10 OFF", descricao: "Desconto na próxima compra acima de R$ 50.", custoPontos: 300, icone: "etiqueta" },
+  { id: "frete", titulo: "Frete grátis", descricao: "Válido para entregas na sua região.", custoPontos: 200, icone: "entrega" },
+  { id: "brinde", titulo: "Brinde surpresa", descricao: "Retire um mimo da casa no balcão.", custoPontos: 450, icone: "presente" },
 ];
 
 export const MOVIMENTACOES: Movimentacao[] = [

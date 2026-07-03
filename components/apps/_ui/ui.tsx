@@ -23,6 +23,10 @@ export type IconeId =
   | "estrela"
   | "relogio"
   | "local"
+  | "etiqueta"
+  | "entrega"
+  | "presente"
+  | "raio"
   | "mais";
 
 const P = (props: SVGProps<SVGSVGElement>) => ({
@@ -151,6 +155,35 @@ export function Icone({ id, className = "h-[22px] w-[22px]" }: { id: IconeId; cl
           <circle cx="12" cy="11" r="2.2" />
         </svg>
       );
+    case "etiqueta":
+      return (
+        <svg {...P(c)}>
+          <path d="M4 4h7l9 9-7 7-9-9V4Z" />
+          <circle cx="8" cy="8" r="1.3" fill="currentColor" stroke="none" />
+        </svg>
+      );
+    case "entrega":
+      return (
+        <svg {...P(c)}>
+          <path d="M3 6.5h10.5v9H3zM13.5 9.5h3.6L21 12.9v2.6h-7.5" />
+          <circle cx="7" cy="17.4" r="1.6" />
+          <circle cx="17" cy="17.4" r="1.6" />
+        </svg>
+      );
+    case "presente":
+      return (
+        <svg {...P(c)}>
+          <rect x="4" y="8.5" width="16" height="3.5" rx="1" />
+          <path d="M5.5 12v7.5h13V12M12 8.5v11" />
+          <path d="M12 8.5C10.4 8.5 8 8.2 8 6.4A2 2 0 0 1 12 6a2 2 0 0 1 4 .4c0 1.8-2.4 2.1-4 2.1Z" />
+        </svg>
+      );
+    case "raio":
+      return (
+        <svg {...P(c)}>
+          <path d="M13 3 5 13h6l-1 8 8-10h-6l1-8Z" />
+        </svg>
+      );
     case "mais":
       return (
         <svg {...P(c)}>
@@ -184,6 +217,37 @@ export function Rating({
       <span className="text-[12px] font-semibold tabular-nums" style={{ color }}>
         {nota.toFixed(1).replace(".", ",")}
       </span>
+    </span>
+  );
+}
+
+/* Avatar de iniciais: gradiente sutil na cor accent, ring branco e sombra leve.
+ * Acabamento premium para pessoas sem foto (evita emoji e stock genérico). */
+export function Monograma({
+  nome,
+  accent,
+  className = "h-12 w-12",
+  textClassName = "text-[15px]",
+}: {
+  nome: string;
+  accent: string;
+  className?: string;
+  textClassName?: string;
+}) {
+  const iniciais =
+    nome
+      .trim()
+      .split(/\s+/)
+      .slice(0, 2)
+      .map((parte) => parte[0]?.toUpperCase() ?? "")
+      .join("") || "?";
+  return (
+    <span
+      aria-hidden
+      className={`grid shrink-0 place-items-center rounded-full font-semibold leading-none text-white shadow-[0_2px_6px_rgba(0,0,0,0.12)] ring-2 ring-white ${className}`}
+      style={{ background: `linear-gradient(140deg, ${accent}, ${accent}B3)` }}
+    >
+      <span className={`${textClassName} tracking-tight`}>{iniciais}</span>
     </span>
   );
 }

@@ -113,8 +113,8 @@ export function ClubeApp({ accent }: { accent: string }) {
                   const jaResgatado = resgatados.includes(c.id);
                   return (
                     <li key={c.id} className="flex items-center gap-3 overflow-hidden rounded-2xl border border-black/[0.06] bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.03)]">
-                      <div className="relative grid h-14 w-14 shrink-0 place-items-center rounded-xl text-2xl text-white" style={{ background: grad }}>
-                        {c.emoji}
+                      <div className="relative grid h-14 w-14 shrink-0 place-items-center rounded-xl text-white shadow-sm" style={{ background: grad }}>
+                        <Icone id={c.icone} className="h-6 w-6" />
                       </div>
                       <div className="min-w-0 flex-1">
                         <p className="text-sm font-semibold text-ink">{c.titulo}</p>
@@ -163,7 +163,9 @@ export function ClubeApp({ accent }: { accent: string }) {
             >
               <BarraVoltar titulo="Confirmar resgate" onVoltar={() => go("cupons")} accent={accent} />
               <div className="px-4 py-6 text-center">
-                <div className="mx-auto grid h-20 w-20 place-items-center rounded-2xl text-4xl text-white shadow-md" style={{ background: grad }}>{cupomSel.emoji}</div>
+                <div className="mx-auto grid h-20 w-20 place-items-center rounded-2xl text-white shadow-md" style={{ background: grad }}>
+                  <Icone id={cupomSel.icone} className="h-9 w-9" />
+                </div>
                 <p className="mt-4 font-display text-lg text-ink">{cupomSel.titulo}</p>
                 <p className="mt-1 text-sm text-ink-faint">{cupomSel.descricao}</p>
                 <p className="mt-3 text-sm">
@@ -187,7 +189,7 @@ export function ClubeApp({ accent }: { accent: string }) {
                       className="grid h-9 w-9 shrink-0 place-items-center rounded-full text-base font-bold"
                       style={{ backgroundColor: acumulado ? `${accent}14` : "rgba(0,0,0,0.05)", color: acumulado ? accent : "#8A8A92" }}
                     >
-                      {acumulado ? "＋" : "－"}
+                      {acumulado ? "+" : "−"}
                     </span>
                     <div className="min-w-0 flex-1">
                       <p className="text-sm font-medium text-ink">{m.descricao}</p>

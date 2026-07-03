@@ -3,7 +3,6 @@ export type Servico = {
   nome: string;
   duracao: string;
   precoCentavos: number;
-  emoji: string;
   img: string;
   tag?: string;
 };
@@ -12,21 +11,20 @@ export type Profissional = {
   id: string;
   nome: string;
   especialidade: string;
-  emoji: string;
   rating: number;
 };
 
 export const SERVICOS: Servico[] = [
-  { id: "corte", nome: "Corte", duracao: "45 min", precoCentavos: 4000, emoji: "✂️", img: "/img/agendamento/corte.jpg", tag: "Mais pedido" },
-  { id: "barba", nome: "Barba", duracao: "30 min", precoCentavos: 3000, emoji: "🧔", img: "/img/agendamento/barba.jpg" },
-  { id: "combo", nome: "Combo corte + barba", duracao: "1h10", precoCentavos: 6000, emoji: "💈", img: "/img/agendamento/corte.jpg", tag: "Combo" },
-  { id: "coloracao", nome: "Coloração", duracao: "1h30", precoCentavos: 12000, emoji: "🎨", img: "/img/agendamento/coloracao.jpg" },
+  { id: "corte", nome: "Corte", duracao: "45 min", precoCentavos: 4000, img: "/img/agendamento/corte.jpg", tag: "Mais pedido" },
+  { id: "barba", nome: "Barba", duracao: "30 min", precoCentavos: 3000, img: "/img/agendamento/barba.jpg" },
+  { id: "combo", nome: "Combo corte + barba", duracao: "1h10", precoCentavos: 6000, img: "/img/agendamento/corte.jpg", tag: "Combo" },
+  { id: "coloracao", nome: "Coloração", duracao: "1h30", precoCentavos: 12000, img: "/img/agendamento/coloracao.jpg" },
 ];
 
 export const PROFISSIONAIS: Profissional[] = [
-  { id: "bruno", nome: "Bruno", especialidade: "Especialista em cortes", emoji: "💇", rating: 4.9 },
-  { id: "camila", nome: "Camila", especialidade: "Coloração e tratamento", emoji: "🎨", rating: 4.8 },
-  { id: "diego", nome: "Diego", especialidade: "Barba e navalha", emoji: "🪒", rating: 5.0 },
+  { id: "bruno", nome: "Bruno Martins", especialidade: "Especialista em cortes", rating: 4.9 },
+  { id: "camila", nome: "Camila Reis", especialidade: "Coloração e tratamento", rating: 4.8 },
+  { id: "diego", nome: "Diego Souza", especialidade: "Barba e navalha", rating: 5.0 },
 ];
 
 // Foto de capa do salão (banner do topo).

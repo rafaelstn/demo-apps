@@ -365,8 +365,10 @@ function OpcaoPagamento({ rotulo, detalhe, ativo, accent }: { rotulo: string; de
         <p className="text-sm font-medium text-ink">{rotulo}</p>
         <p className="text-xs text-ink-faint">{detalhe}</p>
       </div>
-      <span className="grid h-5 w-5 place-items-center rounded-full text-[10px] text-white" style={{ backgroundColor: ativo ? accent : "#D6D6D0" }}>
-        {ativo ? "✓" : ""}
+      <span className="grid h-5 w-5 place-items-center rounded-full text-white" style={{ backgroundColor: ativo ? accent : "#D6D6D0" }}>
+        {ativo ? (
+          <svg viewBox="0 0 24 24" className="h-3 w-3" fill="none" stroke="currentColor" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><path d="m5 13 4 4 10-10" /></svg>
+        ) : null}
       </span>
     </div>
   );

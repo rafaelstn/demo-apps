@@ -4,7 +4,6 @@ export type Aula = {
   horario: string;
   instrutor: string;
   vagas: number;
-  emoji: string;
   img: string;
   duracao: string;
   intensidade: string;
@@ -18,10 +17,10 @@ export type Exercicio = {
 };
 
 export const AULAS: Aula[] = [
-  { id: "spinning", nome: "Spinning", horario: "07:00", instrutor: "Renata Alves", vagas: 3, emoji: "🚴", img: "/img/academia/spinning.jpg", duracao: "45 min", intensidade: "Alta" },
-  { id: "funcional", nome: "Funcional", horario: "09:00", instrutor: "Marcos Dias", vagas: 0, emoji: "🤸", img: "/img/academia/funcional.jpg", duracao: "50 min", intensidade: "Alta" },
-  { id: "yoga", nome: "Yoga", horario: "18:00", instrutor: "Paula Nunes", vagas: 8, emoji: "🧘", img: "/img/academia/yoga.jpg", duracao: "60 min", intensidade: "Leve" },
-  { id: "musculacao", nome: "Musculação livre", horario: "Livre", instrutor: "Equipe de plantão", vagas: 20, emoji: "🏋️", img: "/img/academia/musculacao.jpg", duracao: "Livre", intensidade: "Moderada" },
+  { id: "spinning", nome: "Spinning", horario: "07:00", instrutor: "Renata Alves", vagas: 3, img: "/img/academia/spinning.jpg", duracao: "45 min", intensidade: "Alta" },
+  { id: "funcional", nome: "Funcional", horario: "09:00", instrutor: "Marcos Dias", vagas: 0, img: "/img/academia/funcional.jpg", duracao: "50 min", intensidade: "Alta" },
+  { id: "yoga", nome: "Yoga", horario: "18:00", instrutor: "Paula Nunes", vagas: 8, img: "/img/academia/yoga.jpg", duracao: "60 min", intensidade: "Leve" },
+  { id: "musculacao", nome: "Musculação livre", horario: "Livre", instrutor: "Equipe de plantão", vagas: 20, img: "/img/academia/musculacao.jpg", duracao: "Livre", intensidade: "Moderada" },
 ];
 
 // Foto de capa da grade (banner do topo).
